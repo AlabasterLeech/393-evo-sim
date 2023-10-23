@@ -5,6 +5,7 @@
 import tkinter as tk
 from tkinter import scrolledtext
 from functools import partial
+import os
 
 #Module level constant definitions.
 _WINDOW_TITLE = "Cellvolution 1.0"
@@ -58,7 +59,12 @@ def main():
     btn_return = tk.Button(master = frm_tutMenu, text="Return to Main Menu", command = partial(changeToFrame, frm_mainMenu))
     
     txt_tutorial = scrolledtext.ScrolledText(master = frm_tutMenu, wrap = tk.WORD)
-    txt_tutorial.insert(tk.INSERT, "")
+    tutorialFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "tutorial.txt"))
+    print(tutorialFilePath)
+    if(os.path.exists(tutorialFilePath)):
+        f = open(tutorialFilePath, "r")
+        txt_tutorial.insert(tk.INSERT, f.read())
+        f.close()
     txt_tutorial.grid(row = 0, column = 0, padx = 10, pady = 10, sticky = "nsew")
     btn_return.grid(row = 1, column = 0, padx = 10, pady = 10, sticky = "nsew")
 

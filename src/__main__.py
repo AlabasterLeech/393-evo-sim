@@ -4,6 +4,7 @@
 #Import statements
 import tkinter as tk
 from tkinter import scrolledtext
+from tkinter import filedialog
 from functools import partial
 import os
 
@@ -32,11 +33,17 @@ def main():
     frm_mainMenu = tk.Frame(master = gameWindow)
     frm_tutMenu = tk.Frame(master = gameWindow)
 
+    #Holds the file path for loading or saving the simulation
+    simFilePath = None
+    
     #Function buttons call to change out frames
     def changeToFrame(frame):
         clearWindow(gameWindow)
         frame.pack(fill = tk.BOTH, expand = True)
-        
+
+    #Function to prompt the user to select a file to load and then store its path in simFilePath
+    def getFilePath(*options):
+        simFilePath = filedialog.askopenfilename(parent = gameWindow, filetypes=[("JSON Files", "*.json")])
 
     #Populate the main menu
     frm_mainMenu.columnconfigure(0, weight = 1, minsize = _MIN_WIDTH)
@@ -45,6 +52,7 @@ def main():
     lbl_nameText = tk.Label(master = frm_mainMenu, text="Cellvolution")
     btn_newSim = tk.Button(master = frm_mainMenu, text="New Simulation")
     btn_loadSim = tk.Button(master = frm_mainMenu, text="Load Simulation")
+    btn_loadSim.bind("<Button-1>", getFilePath)
     btn_tutorial = tk.Button(master = frm_mainMenu, text="Tutorial", command = partial(changeToFrame, frm_tutMenu))
 
     lbl_nameText.grid(row = 0, column = 0, padx = 10, pady = 10, sticky = "nsew")
@@ -60,11 +68,11 @@ def main():
     
     txt_tutorial = scrolledtext.ScrolledText(master = frm_tutMenu, wrap = tk.WORD)
     tutorialFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "tutorial.txt"))
-    print(tutorialFilePath)
     if(os.path.exists(tutorialFilePath)):
         f = open(tutorialFilePath, "r")
         txt_tutorial.insert(tk.INSERT, f.read())
         f.close()
+    
     txt_tutorial.grid(row = 0, column = 0, padx = 10, pady = 10, sticky = "nsew")
     btn_return.grid(row = 1, column = 0, padx = 10, pady = 10, sticky = "nsew")
 

@@ -1,11 +1,9 @@
 import unittest
-from random import Random
 from Environment import Environment
 
 
 class EnvironmentTest(unittest.TestCase):
-    def test_upper(self):
-        self.random = Random(1)
+    def setUp(self):
         self.env = Environment(10, 10)
 
     # first value is to be tested result, second value is the true result
@@ -33,11 +31,6 @@ class EnvironmentTest(unittest.TestCase):
         message = 'Child genome the same as Parent genome!'
         self.assertTrue(gen3 != gen1, message)
         self.assertTrue(gen3 != gen2, message)
-
-    # Tests if space open returns the correct bool value
-    def test_space_open(self):
-
-
 
 
 if __name__ == '__main__':

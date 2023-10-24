@@ -2,9 +2,15 @@ import math
 import random
 
 class Organism:
+    _NORTH = 0
+    _EAST = 1
+    _SOUTH = 2
+    _WEST = 3
+
     def __init__(self, state):
         #Initialize minimally functional default state
         self.x, self.y = 0, 0
+        self.dir = _NORTH
         self.genome = []
 
         #Copy initializer state into members
@@ -15,6 +21,7 @@ class Organism:
         return {
             "x": self.x,
             "y": self.y,
+            "dir": self.dir,
             "genome": self.genome
         }
 

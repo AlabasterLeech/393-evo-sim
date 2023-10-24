@@ -3,6 +3,7 @@
 """
 #Import statements
 import tkinter as tk
+from tkinter import ttk
 from tkinter import scrolledtext
 from tkinter import filedialog
 from functools import partial
@@ -30,8 +31,8 @@ def main():
     gameWindow.minsize(_MIN_WIDTH,_MIN_HEIGHT)
     
     #Initialize the menu frames
-    frm_mainMenu = tk.Frame(master = gameWindow)
-    frm_tutMenu = tk.Frame(master = gameWindow)
+    frm_mainMenu = ttk.Frame(master = gameWindow)
+    frm_tutMenu = ttk.Frame(master = gameWindow)
 
     #Holds the file path for loading or saving the simulation
     simFilePath = None
@@ -49,13 +50,13 @@ def main():
     frm_mainMenu.columnconfigure(0, weight = 1, minsize = _MIN_WIDTH)
     frm_mainMenu.rowconfigure([0, 1, 2, 3], weight = 1, minsize = _MIN_HEIGHT/4)
 
-    lbl_nameText = tk.Label(master = frm_mainMenu, text="Cellvolution")
-    btn_newSim = tk.Button(master = frm_mainMenu, text="New Simulation")
-    btn_loadSim = tk.Button(master = frm_mainMenu, text="Load Simulation")
+    lbl_nameText = ttk.Label(master = frm_mainMenu, text="Cellvolution")
+    btn_newSim = ttk.Button(master = frm_mainMenu, text="New Simulation")
+    btn_loadSim = ttk.Button(master = frm_mainMenu, text="Load Simulation")
     btn_loadSim.bind("<Button-1>", getFilePath)
-    btn_tutorial = tk.Button(master = frm_mainMenu, text="Tutorial", command = partial(changeToFrame, frm_tutMenu))
+    btn_tutorial = ttk.Button(master = frm_mainMenu, text="Tutorial", command = partial(changeToFrame, frm_tutMenu))
 
-    lbl_nameText.grid(row = 0, column = 0, padx = 10, pady = 10, sticky = "nsew")
+    lbl_nameText.grid(row = 0, column = 0, padx = 10, pady = 10, sticky = "ns")
     btn_newSim.grid(row = 1, column = 0, padx = 10, pady = 10, sticky = "nsew")
     btn_loadSim.grid(row = 2, column = 0, padx = 10, pady = 10, sticky = "nsew")
     btn_tutorial.grid(row = 3, column = 0, padx = 10, pady = 10, sticky = "nsew")
@@ -64,7 +65,7 @@ def main():
     frm_tutMenu.columnconfigure(0, weight = 1, minsize = _MIN_WIDTH)
     frm_tutMenu.rowconfigure(0, weight = 1, minsize = _MIN_HEIGHT-50)
     
-    btn_return = tk.Button(master = frm_tutMenu, text="Return to Main Menu", command = partial(changeToFrame, frm_mainMenu))
+    btn_return = ttk.Button(master = frm_tutMenu, text="Return to Main Menu", command = partial(changeToFrame, frm_mainMenu))
     
     txt_tutorial = scrolledtext.ScrolledText(master = frm_tutMenu, wrap = tk.WORD)
     tutorialFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "tutorial.txt"))

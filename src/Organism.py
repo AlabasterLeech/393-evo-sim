@@ -5,7 +5,7 @@ class Organism:
     def __init__(self, state):
         #Initialize minimally functional default state
         self.x, self.y = 0, 0
-        self.genome = ""
+        self.genome = []
 
         #Copy initializer state into members
         self.set_state(state)

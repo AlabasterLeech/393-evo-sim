@@ -45,16 +45,20 @@ class Organism:
         None
 
     def get_genome(self):
+        #Return current genome
         return self.genome
     
     def set_genome(self, new_genome):
+        #Replace genome
         self.genome = new_genome
     
     def get_location(self):
+        #Return current location
         return (self.x, self.y)
 
     class Neuron:
         def __init__(self):
+            #Initialize basic neuron
             self.output = 0
             self.bias = 0
             self.threshold = 0.8
@@ -62,13 +66,16 @@ class Organism:
             self.outputs = []
 
         def get_output(self):
+            #Return current activation output
             return self.output
         
         def activation(self, signal):
+            #Calculate activation function
             sigmoid = 1 / (1 + math.exp(-2 * signal))
             return math.tanh(2 * sigmoid - 1)
 
         def calc_output(self):
+            #Calculate activation output with current input
             signal = sum([neuron[0].get_output() * neuron[1] for neuron in self.inputs])
             signal += self.bias
             self.output = self.activation(signal)

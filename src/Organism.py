@@ -41,11 +41,11 @@ class Organism:
         None
 
     def consume(self, object):
-        #...
+        #Modify values according to object composition
         None
 
     def mutate(self, chance):
-        #...
+        #Randomly alter singular gene in genome
         None
     
     def build_network(self):

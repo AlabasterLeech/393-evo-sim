@@ -12,6 +12,7 @@ class Organism:
         self.x, self.y = 0, 0
         self.dir = Organism._NORTH
         self.genome = []
+        self.network = {}
 
         #Copy initializer state into members
         self.set_state(state)
@@ -48,8 +49,20 @@ class Organism:
         None
     
     def build_network(self):
-        #Generate neural network from stored genome
-        None
+        #Generate fresh neural network from stored genome
+        self.network = {}
+        for gene in self.genome:
+            #Extract neuron IDs and weight from gene
+            neuron_src = gene[0]
+            neuron_dst = gene[2]
+            weight = gene[1]
+            #Create missing neurons
+            if neuron_src not in self.network:
+                self.network[neuron_src] = Organism.Neuron()
+            if neuron_dst not in self.network:
+                self.network[neuron_dst] = Organism.Neuron()
+            #Create connection
+            self.network[neuron_dst].add_input(self.network[neuron_src], weight)
 
     def get_genome(self):
         #Return current genome
@@ -79,6 +92,16 @@ class Organism:
         def get_output_thresh(self):
             #Return if current output meets threshold
             return self.output >= self.threshold
+
+        def add_input(self, neuron, weight):
+            #Add neuron to list of inputs with weight
+            self.inputs.append((neuron, weight))
+            #Add this to target's list of outputs
+            neuron.add_output(self)
+
+        def add_output(self, neuron):
+            #Add neuron to list of outputs
+            self.outputs.append(neuron)
         
         def activation(self, signal):
             #Calculate activation function

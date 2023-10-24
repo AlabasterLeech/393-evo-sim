@@ -68,6 +68,10 @@ class Organism:
         def get_output(self):
             #Return current activation output
             return self.output
+
+        def get_output_thresh(self):
+            #Return if current output meets threshold
+            return self.output >= self.threshold
         
         def activation(self, signal):
             #Calculate activation function

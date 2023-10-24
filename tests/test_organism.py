@@ -1,5 +1,5 @@
 import unittest
-from Organism import Organism
+from src.Organism import Organism
 import math
 
 
@@ -7,6 +7,7 @@ class OrganismTest(unittest.TestCase):
     def setUp(self):
         org_state = {"x": 4,
                      "y": 4,
+                     "dir": Organism._NORTH,
                      "genome": [1, 2, 3]}
         self.org = Organism(org_state)
         self.neuron1 = Organism.Neuron()
@@ -21,6 +22,7 @@ class OrganismTest(unittest.TestCase):
     def test_get_state(self):
         org_state = {"x": 4,
                      "y": 4,
+                     "dir": Organism._NORTH,
                      "genome": [1, 2, 3]}
         msg = 'States are not equal!'
         self.assertEqual(org_state, self.org.get_state(), msg)
@@ -28,6 +30,7 @@ class OrganismTest(unittest.TestCase):
     def test_set_state(self):
         new_org_state = {"x": 1,
                          "y": 1,
+                         "dir": Organism._NORTH,
                          "genome": [1, 1, 1]}
         self.org.set_state(new_org_state)
         d = self.org.get_state()

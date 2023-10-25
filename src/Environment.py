@@ -3,6 +3,8 @@
 
 # In[ ]:
 
+import random
+from Organism import Organism
 
 class Environment:
     def __init__(self, width, height):

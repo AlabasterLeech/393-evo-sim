@@ -16,7 +16,12 @@ _MIN_HEIGHT = 480
 
 
 class gameWindow(tk.Tk):
-    """gameWindow docstring"""
+    """A gameWindow is an extenstion of a tkinter root which initializes with the ttk frames needed
+    for cellvolution. Other than what it inherits, gameWindow has methods which:
+    Clear the window (clearWindow)
+    Change its state to each of its menus/displays
+    Get the file path for a save to load
+    """
     def __init__(self):
         tk.Tk.__init__(self)
         self.title(_WINDOW_TITLE)
@@ -33,6 +38,8 @@ class gameWindow(tk.Tk):
         for widget in self.winfo_children():
             widget.pack_forget()
 
+    """Uses a tkinter filedialog to get the path to a JSON file the user would like to load, which can then be passed to the function which
+    will actually parse from the JSON file and initialize the simulation state."""
     def getFilePath(self, *options):
         self.simFilePath = filedialog.askopenfilename(parent = self, filetypes=[("JSON Files", "*.json")])
 
@@ -83,6 +90,3 @@ class tutorialFrame(ttk.Frame):
         self.txt_tutorial.grid(row = 0, column = 0, padx = 10, pady = 10, sticky = "nsew")
         self.btn_return.grid(row = 1, column = 0, padx = 10, pady = 10, sticky = "nsew")
 
-if __name__ == '__main__':
-    ngWindow = gameWindow()
-    ngWindow.mainloop()

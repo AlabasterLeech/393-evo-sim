@@ -11,8 +11,12 @@ import os
 
 #Module level constant definitions.
 _WINDOW_TITLE = "Cellvolution 1.0"
-_MIN_WIDTH = 640
-_MIN_HEIGHT = 480
+_MIN_WIN_WIDTH = 640
+_MIN_WIN_HEIGHT = 480
+_MAX_ENV_WIDTH = 1000
+_MIN_ENV_WIDTH = 10
+_MAX_ENV_HEIGHT = 1000
+_MIN_ENV_HEIGHT = 10
 
 
 class gameWindow(tk.Tk):
@@ -25,9 +29,10 @@ class gameWindow(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self.title(_WINDOW_TITLE)
-        self.minsize(_MIN_WIDTH,_MIN_HEIGHT)
+        self.minsize(_MIN_WIN_WIDTH,_MIN_WIN_HEIGHT)
         self.mainMenu = mainFrame(self)
         self.tutMenu = tutorialFrame(self)
+        self.newSimMenu = newSimFrame(self)
         self.simFilePath = None
         
 
@@ -51,17 +56,20 @@ class gameWindow(tk.Tk):
         self.clearWindow()
         self.tutMenu.pack(fill = tk.BOTH, expand = True)
 
+    def changeToNewSimMenu(self):
+        self.clearWindow()
+        self.newSimMenu.pack(fill = tk.BOTH, expand = True)
+
 class mainFrame(ttk.Frame):
     """mainFrame docstring"""
     def __init__(self, master):
         ttk.Frame.__init__(self, master)
-        self.master = master
 
-        self.columnconfigure(0, weight = 1, minsize = _MIN_WIDTH)
-        self.rowconfigure([0, 1, 2, 3], weight = 1, minsize = _MIN_HEIGHT/4)
+        self.columnconfigure(0, weight = 1, minsize = _MIN_WIN_WIDTH)
+        self.rowconfigure([0, 1, 2, 3], weight = 1, minsize = _MIN_WIN_HEIGHT/4)
 
         self.lbl_nameText = ttk.Label(master = self, text="Cellvolution")
-        self.btn_newSim = ttk.Button(master = self, text="New Simulation")
+        self.btn_newSim = ttk.Button(master = self, text="New Simulation", command = partial(master.changeToNewSimMenu))
         self.btn_loadSim = ttk.Button(master = self, text="Load Simulation")
         self.btn_loadSim.bind("<Button-1>", master.getFilePath)
         self.btn_tutorial = ttk.Button(master = self, text="Tutorial", command = partial(master.changeToTutorialMenu))
@@ -75,8 +83,9 @@ class tutorialFrame(ttk.Frame):
     """tutorialFrame docstring"""
     def __init__(self, master):
         ttk.Frame.__init__(self, master)
-        self.columnconfigure(0, weight = 1, minsize = _MIN_WIDTH)
-        self.rowconfigure(0, weight = 1, minsize = _MIN_HEIGHT-50)
+
+        self.columnconfigure(0, weight = 1, minsize = _MIN_WIN_WIDTH)
+        self.rowconfigure(0, weight = 1, minsize = _MIN_WIN_HEIGHT-50)
         
         self.btn_return = ttk.Button(master = self, text="Return to Main Menu", command = partial(self.master.changeToMainMenu))
         
@@ -89,4 +98,70 @@ class tutorialFrame(ttk.Frame):
         
         self.txt_tutorial.grid(row = 0, column = 0, padx = 10, pady = 10, sticky = "nsew")
         self.btn_return.grid(row = 1, column = 0, padx = 10, pady = 10, sticky = "nsew")
+
+class newSimFrame(ttk.Frame):
+    def __init__(self,master):
+        ttk.Frame.__init__(self, master)
+
+        #Varibles which hold the various settings the user is modifying,
+        #Use of tk control variables allows multiple input methods
+        #to control a single value easily and synchronously
+        self.envWidth = tk.IntVar(value = 500)
+        self.envHeight = tk.IntVar(value = 500)
+
+        self.widthSlider = ttk.Scale(
+            orient = tk.HORIZONTAL,
+            from_=_MIN_ENV_WIDTH,
+            to=_MAX_ENV_WIDTH,
+            variable = self.envWidth,
+            command = lambda s:self.envWidth.set('%d' % float(s)),
+            master = self)
+
+        self.heightSlider = ttk.Scale(
+            orient = tk.HORIZONTAL,
+            from_=_MIN_ENV_HEIGHT,
+            to=_MAX_ENV_HEIGHT,
+            variable = self.envHeight,
+            command = lambda s:self.envHeight.set('%d' % float(s)),
+            master = self)
+
+        self.widthEntry = ttk.Entry(
+            exportselection = 0,
+            validate = 'all',
+            validatecommand = (self.register(self.validWidth), '%P'),
+            textvariable = self.envWidth,
+            master = self)
+
+        self.heightEntry = ttk.Entry(
+            exportselection = 0,
+            validate = 'all',
+            validatecommand = (self.register(self.validHeight), '%P'),
+            textvariable = self.envHeight,
+            master = self)
+
+        self.columnconfigure(0, weight = 1, minsize = _MIN_WIN_WIDTH - 50)
+        self.rowconfigure([0, 1, 2, 3], weight = 1, minsize = _MIN_WIN_HEIGHT/4)
+
+        self.widthEntry.grid(row = 0, column = 0, padx = 10, pady = 10)
+        self.widthSlider.grid(row = 1, column = 0, padx = 10, pady = 10)
+        self.heightEntry.grid(row = 2, column = 0, padx = 10, pady = 10)
+        self.heightSlider.grid(row = 3, column = 0, padx = 10, pady = 10)
+
+    def validWidth(self, P):
+        if str.isdigit(P) and int(P) >= _MIN_ENV_WIDTH and int(P) <= _MAX_ENV_WIDTH:
+            self.envWidth.set(int(P))
+            return True 
+        if P == "":
+            return True
+        else:
+            return False
+
+    def validHeight(self, P):
+        if str.isdigit(P) and int(P) >= _MIN_ENV_HEIGHT and int(P) <= _MAX_ENV_HEIGHT:
+            self.envHeight.set(int(P))
+            return True 
+        if P == "":
+            return True
+        else:
+            return False
 

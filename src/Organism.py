@@ -59,16 +59,20 @@ class Organism:
             #Extract neuron IDs and weight from gene
             neuron_src = gene[0]
             neuron_dst = gene[2]
+            weight = int.from_bytes([gene[1]], byteorder="little", signed=True) / 64.
             #Skip if neurons are out of order
-            if neuron_dst <= neuron_src:
+            if neuron_dst < neuron_src:
                 continue
+            elif neuron_dst == neuron_src:
+                if neuron_src not in self.network:
+                    self.network[neuron_src] = Organism.Neuron()
+                    self.network[neuron_src].bias = weight
             #Create missing neurons
             if neuron_src not in self.network:
                 self.network[neuron_src] = Organism.Neuron()
             if neuron_dst not in self.network:
                 self.network[neuron_dst] = Organism.Neuron()
             #Create connection
-            weight = int.from_bytes([gene[1]], byteorder="little", signed=True) / 64.
             self.network[neuron_dst].add_input(self.network[neuron_src], weight)
 
     def get_genome(self):

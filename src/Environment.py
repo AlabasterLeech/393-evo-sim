@@ -32,7 +32,10 @@ class Environment:
 
         self.objects = []
         for object_state in state["objects"]:
-            object = Object(object_state)
+            object = Object(object_state["x"],
+                            object_state["y"],
+                            object_state["object_type"],
+                            object_state["density"])
             self.objects.append(object)
 
     def breed(self, organism1, organism2):

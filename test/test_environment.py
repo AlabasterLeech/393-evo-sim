@@ -45,7 +45,6 @@ class EnvironmentTest(unittest.TestCase):
             pass
 
     # Tests if Environment creates a new Organism from two parent organisms
-    """
     def test_breed(self):
         org_state_one = {"x": 4,
                          "y": 4,
@@ -57,8 +56,7 @@ class EnvironmentTest(unittest.TestCase):
         org_two = Organism(org_state_two)
         child = self.env.breed(org_one, org_two)
         message = 'Did not create new Organism!'
-        self.assertEqual(( , ), child.get_location(), message)
-    """
+        self.assertEqual((0, 0), child.get_location(), message)
 
     # Tests if Environment holds and remembers objs/orgs in their positions
     def test_space_open(self):

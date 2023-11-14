@@ -44,10 +44,8 @@ class OrganismTest(unittest.TestCase):
         self.org.set_genome(genome)
         self.org.build_network()
         self.org.think()
-        print(1 in self.org.network)
-        print(self.org.network[1].output)
-        print(self.org.network[1].bias)
-        print(self.org.network[1].get_output_thresh())
+        msg = 'Output was not modified and did not exceed output threshold!'
+        self.assertTrue(self.org.network[8].get_output_thresh(), msg)
 
     def test_mutate(self):
         chance = 2147483647

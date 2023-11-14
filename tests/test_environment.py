@@ -17,7 +17,8 @@ class EnvironmentTest(unittest.TestCase):
     def test_set_state(self):
         org_state = {"x": 4,
                      "y": 4,
-                     "genome": []}
+                     "genome": [],
+                     "dir": 0}
         test_dic = {"organisms": [org_state],
                     "objects": []}
         self.env.set_state(test_dic)

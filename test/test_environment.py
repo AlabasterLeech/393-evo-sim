@@ -1,5 +1,6 @@
 import unittest
 from src.Environment import Environment
+from src.Organism import Organism
 
 
 class EnvironmentTest(unittest.TestCase):
@@ -38,6 +39,22 @@ class EnvironmentTest(unittest.TestCase):
         except AssertionError:
             pass
 
+    # Tests if Environment creates a new Organism from two parent organisms
+    """
+    def test_breed(self):
+        org_state_one = {"x": 4,
+                         "y": 4,
+                         "genome": [1, 2, 3, 4]}
+        org_state_two = {"x": 4,
+                         "y": 3,
+                         "genome": [5, 6, 7, 8]}
+        org_one = Organism(org_state_one)
+        org_two = Organism(org_state_two)
+        child = self.env.breed(org_one, org_two)
+        message = 'Did not create new Organism!'
+        self.assertEqual(( , ), child.get_location(), message)
+    """
+    
     # Tests if Environment holds and remembers objs/orgs in their positions
     def test_space_open(self):
         org_state = {"x": 4,
@@ -50,6 +67,13 @@ class EnvironmentTest(unittest.TestCase):
         self.assertEqual(False, self.env.space_open(11, 4), 'Env is large enough to have this space!')
         self.assertEqual(True, self.env.space_open(3, 3), 'Some Obj/Org is in this space!')
 
+    # Tests if Environment holds the new survival function
+    def test_set_survival_function(self):
+        fun = 55
+        self.env.set_survival_function(fun)
+        message = 'Env did not properly set the survival function!'
+        self.assertEqual(55, self.env.survival_function)
+        
 
 if __name__ == '__main__':
     unittest.main()

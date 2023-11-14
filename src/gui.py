@@ -116,6 +116,15 @@ class newSimFrame(ttk.Frame):
             variable = self.envWidth,
             command = lambda s:self.envWidth.set('%d' % float(s)),
             master = self)
+        
+        self.widthEntry = ttk.Entry(
+            exportselection = 0,
+            validate = 'all',
+            validatecommand = (self.register(self.validWidth), '%P'),
+            textvariable = self.envWidth,
+            master = self)
+        
+        self.widthLabel = ttk.Label(text = 'Environment Width', master = self)
 
         self.heightSlider = ttk.Scale(
             orient = tk.HORIZONTAL,
@@ -125,13 +134,6 @@ class newSimFrame(ttk.Frame):
             command = lambda s:self.envHeight.set('%d' % float(s)),
             master = self)
 
-        self.widthEntry = ttk.Entry(
-            exportselection = 0,
-            validate = 'all',
-            validatecommand = (self.register(self.validWidth), '%P'),
-            textvariable = self.envWidth,
-            master = self)
-
         self.heightEntry = ttk.Entry(
             exportselection = 0,
             validate = 'all',
@@ -139,13 +141,20 @@ class newSimFrame(ttk.Frame):
             textvariable = self.envHeight,
             master = self)
 
-        self.columnconfigure(0, weight = 1, minsize = _MIN_WIN_WIDTH - 50)
-        self.rowconfigure([0, 1, 2, 3], weight = 1, minsize = _MIN_WIN_HEIGHT/4)
+        self.heightLabel = ttk.Label(text = 'Environment Height', master = self)
 
-        self.widthEntry.grid(row = 0, column = 0, padx = 10, pady = 10)
-        self.widthSlider.grid(row = 1, column = 0, padx = 10, pady = 10)
-        self.heightEntry.grid(row = 2, column = 0, padx = 10, pady = 10)
-        self.heightSlider.grid(row = 3, column = 0, padx = 10, pady = 10)
+        self.btn_return = ttk.Button(master = self, text="Return to Main Menu", command = partial(self.master.changeToMainMenu))
+        self.btn_begin = ttk.Button(master = self, text="Begin Simulation")
+
+        self.columnconfigure([0, 1, 2, 3], weight = 1, minsize = _MIN_WIN_WIDTH/4)
+        self.rowconfigure([0, 1, 2, 3, 4, 5], weight = 1, minsize = _MIN_WIN_HEIGHT/6)
+        self.widthLabel.grid(row = 0, column = 0, padx = 10, pady = 10, sticky = "s")
+        self.widthEntry.grid(row = 0, column = 1, padx = 10, pady = 10, sticky = "s")
+        self.widthSlider.grid(row = 1, column = 0, padx = 10, pady = 10, columnspan = 2, sticky = "new")
+        self.heightEntry.grid(row = 2, column = 1, padx = 10, pady = 10, sticky = "s")
+        self.heightSlider.grid(row = 3, column = 0, padx = 10, pady = 10, columnspan = 2, sticky = "new")
+        self.btn_return.grid(row = 5, column = 0, padx = 10, pady = 10, columnspan = 4, sticky = "nsew")
+        self.btn_begin.grid(row = 4, column = 0, padx = 10, pady = 10, columnspan = 4, sticky = "nsew")
 
     def validWidth(self, P):
         if str.isdigit(P) and int(P) >= _MIN_ENV_WIDTH and int(P) <= _MAX_ENV_WIDTH:

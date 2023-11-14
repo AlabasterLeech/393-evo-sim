@@ -46,7 +46,11 @@ class Organism:
 
     def mutate(self, chance):
         #Randomly alter singular gene in genome
-        None
+        if random.random() <= chance:
+            target_gene = random.randrange(0, len(self.genome))
+            target_byte = random.randrange(0, 3)
+            new_byte = self.genome[target_gene][target_byte] ^ (1 << random.randrange(0, 8))
+            self.genome[target_gene] = self.genome[target_gene][:target_byte] + bytes([new_byte]) + self.genome[target_gene][target_byte + 1:]
     
     def build_network(self):
         #Generate fresh neural network from stored genome

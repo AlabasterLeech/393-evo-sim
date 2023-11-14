@@ -7,6 +7,7 @@ import random
 from src.Organism import Organism
 from src.Object import Object
 
+
 class Environment:
     def __init__(self, width, height):
         # Initializes the environment with default parameters
@@ -17,7 +18,7 @@ class Environment:
         self.survival_function = None  # The function to determine organism survival probability
 
     def get_state(self):
-       # Return the current state of the environment
+        # Return the current state of the environment
         state = {}
         state["organisms"] = [organism.get_state() for organism in self.organisms]
         state["objects"] = [object.get_state() for object in self.objects]
@@ -32,7 +33,10 @@ class Environment:
 
         self.objects = []
         for object_state in state["objects"]:
-            object = Object(object_state)
+            object = Object(object_state["x"],
+                            object_state["y"],
+                            object_state["object_type"],
+                            object_state["density"])
             self.objects.append(object)
 
     def breed(self, organism1, organism2):
@@ -46,7 +50,7 @@ class Environment:
         # Checks if the specified coordinates are within the bounds of the environment and are not occupied by any organisms or objects
         if not (0 <= x < self.width) or not (0 <= y < self.height):
             return False
-        
+
         for organism in self.organisms:
             if organism.get_location() == (x, y):
                 return False
@@ -66,4 +70,3 @@ class Environment:
         crossover_point = random.randint(0, len(genome1) - 1)
         new_genome = genome1[:crossover_point] + genome2[crossover_point:]
         return new_genome
-

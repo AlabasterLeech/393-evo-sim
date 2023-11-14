@@ -115,6 +115,7 @@ class newSimFrame(ttk.Frame):
         self.envHeight = tk.IntVar(value = 500)
         self.foodDensity = tk.IntVar(value = 10)
         self.numOrganisms = tk.IntVar(value = 1000)
+        self.survivalFunction = tk.StringVar(value = "None")
 
         #Make all them widgets
         self.widthSlider = ttk.Scale(
@@ -185,26 +186,44 @@ class newSimFrame(ttk.Frame):
         
         self.numOrganismsLabel = ttk.Label(text = 'Initial Number Of Organisms', master = self)
 
+        self.survivalFunctionSelector = ttk.Combobox(
+            exportselection = 0,
+            state = "readonly",
+            textvariable = self.survivalFunction,
+            height = 5,
+            values = ["None", "Has Eaten Food", "Temp Surv Func 1", "Temp Surv Func 3"],
+            master = self)
+
+        self.survivalFunctionLabel = ttk.Label(text = 'Survival Function', master = self)
+
         self.btn_return = ttk.Button(master = self, text="Return to Main Menu", command = partial(self.master.changeToMainMenu))
         self.btn_begin = ttk.Button(master = self, text="Begin Simulation")
 
         #Set up the geometry of all the widgets
         self.columnconfigure([0, 1, 2, 3], weight = 1, minsize = _MIN_WIN_WIDTH/4)
-        self.rowconfigure([0, 1, 2, 3, 4, 5], weight = 1, minsize = _MIN_WIN_HEIGHT/6)
-        self.widthLabel.grid(row = 0, column = 0, padx = 10, pady = 10, sticky = "s")
-        self.widthEntry.grid(row = 0, column = 1, padx = 10, pady = 10, sticky = "s")
-        self.widthSlider.grid(row = 1, column = 0, padx = 10, pady = 10, columnspan = 2, sticky = "new")
-        self.heightEntry.grid(row = 2, column = 1, padx = 10, pady = 10, sticky = "s")
-        self.heightSlider.grid(row = 3, column = 0, padx = 10, pady = 10, columnspan = 2, sticky = "new")
-        self.heightLabel.grid(row = 2, column = 0, padx = 10, pady = 10, sticky = "s")
-        self.foodDensityLabel.grid(row = 0, column = 2, padx = 10, pady = 10, sticky = "s")
-        self.foodDensityEntry.grid(row = 0, column = 3, padx = 10, pady = 10, sticky = "s")
-        self.foodDensitySlider.grid(row = 1, column = 2, padx = 10, pady = 10, columnspan = 2, sticky = "new")
-        self.numOrganismsLabel.grid(row = 2, column = 2, padx = 10, pady = 10, sticky = "s")
-        self.numOrganismsEntry.grid(row = 2, column = 3, padx = 10, pady = 10, sticky = "s")
-        self.numOrganismsSlider.grid(row = 3, column = 2, padx = 10, pady = 10, columnspan = 2, sticky = "new")
-        self.btn_return.grid(row = 5, column = 0, padx = 10, pady = 10, columnspan = 4, sticky = "nsew")
-        self.btn_begin.grid(row = 4, column = 0, padx = 10, pady = 10, columnspan = 4, sticky = "nsew")
+        self.rowconfigure([0, 1, 2, 3, 4, 5, 6], weight = 1, minsize = _MIN_WIN_HEIGHT/6)
+
+        self.survivalFunctionLabel.grid(row = 0, column = 0, padx = 10, pady = 10)
+        self.survivalFunctionSelector.grid(row = 0, column = 1, padx = 10, pady = 10, columnspan = 3, sticky = "ew")
+
+        self.widthLabel.grid(row = 1, column = 0, padx = 10, pady = 10, sticky = "s")
+        self.widthEntry.grid(row = 1, column = 1, padx = 10, pady = 10, sticky = "s")
+        self.widthSlider.grid(row = 2, column = 0, padx = 10, pady = 10, columnspan = 2, sticky = "new")
+
+        self.heightEntry.grid(row = 3, column = 1, padx = 10, pady = 10, sticky = "s")
+        self.heightLabel.grid(row = 3, column = 0, padx = 10, pady = 10, sticky = "s")
+        self.heightSlider.grid(row = 4, column = 0, padx = 10, pady = 10, columnspan = 2, sticky = "new")
+
+        self.foodDensityLabel.grid(row = 1, column = 2, padx = 10, pady = 10, sticky = "s")
+        self.foodDensityEntry.grid(row = 1, column = 3, padx = 10, pady = 10, sticky = "s")
+        self.foodDensitySlider.grid(row = 2, column = 2, padx = 10, pady = 10, columnspan = 2, sticky = "new")
+
+        self.numOrganismsLabel.grid(row = 3, column = 2, padx = 10, pady = 10, sticky = "s")
+        self.numOrganismsEntry.grid(row = 3, column = 3, padx = 10, pady = 10, sticky = "s")
+        self.numOrganismsSlider.grid(row = 4, column = 2, padx = 10, pady = 10, columnspan = 2, sticky = "new")
+
+        self.btn_return.grid(row = 6, column = 0, padx = 10, pady = 10, columnspan = 4, sticky = "nsew")
+        self.btn_begin.grid(row = 5, column = 0, padx = 10, pady = 10, columnspan = 4, sticky = "nsew")
 
     def validateWidth(self, P):
         if str.isdigit(P) and int(P) >= _MIN_ENV_WIDTH and int(P) <= _MAX_ENV_WIDTH:

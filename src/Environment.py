@@ -4,7 +4,8 @@
 # In[ ]:
 
 import random
-from Organism import Organism
+from src.Organism import Organism
+from src.Object import Object
 
 class Environment:
     def __init__(self, width, height):
@@ -37,7 +38,7 @@ class Environment:
     def breed(self, organism1, organism2):
         # Produces a new organism using a genome derived from the genomes of two specified organisms
         new_genome = self.crossover(organism1.get_genome(), organism2.get_genome())
-        new_organism = Organism()
+        new_organism = Organism(state)
         new_organism.set_genome(new_genome)
         return new_organism
 

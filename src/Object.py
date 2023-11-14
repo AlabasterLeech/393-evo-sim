@@ -21,3 +21,7 @@ class Object:
         self.object_type = state["object_type"]
         self.density = state["density"]
 
+    def get_location(self):
+        # Returns the location of the object
+        return (self.x, self.y)
+

@@ -17,6 +17,11 @@ _MAX_ENV_WIDTH = 1000
 _MIN_ENV_WIDTH = 10
 _MAX_ENV_HEIGHT = 1000
 _MIN_ENV_HEIGHT = 10
+_MIN_FOOD_DENSITY = 5
+_MAX_FOOD_DENSITY = 25
+_MIN_NUM_ORGANISMS = 100
+_MAX_NUM_ORGANISMS = 10000
+
 
 
 class gameWindow(tk.Tk):
@@ -108,7 +113,10 @@ class newSimFrame(ttk.Frame):
         #to control a single value easily and synchronously
         self.envWidth = tk.IntVar(value = 500)
         self.envHeight = tk.IntVar(value = 500)
+        self.foodDensity = tk.IntVar(value = 10)
+        self.numOrganisms = tk.IntVar(value = 1000)
 
+        #Make all them widgets
         self.widthSlider = ttk.Scale(
             orient = tk.HORIZONTAL,
             from_=_MIN_ENV_WIDTH,
@@ -120,7 +128,7 @@ class newSimFrame(ttk.Frame):
         self.widthEntry = ttk.Entry(
             exportselection = 0,
             validate = 'all',
-            validatecommand = (self.register(self.validWidth), '%P'),
+            validatecommand = (self.register(self.validateWidth), '%P'),
             textvariable = self.envWidth,
             master = self)
         
@@ -137,15 +145,50 @@ class newSimFrame(ttk.Frame):
         self.heightEntry = ttk.Entry(
             exportselection = 0,
             validate = 'all',
-            validatecommand = (self.register(self.validHeight), '%P'),
+            validatecommand = (self.register(self.validateHeight), '%P'),
             textvariable = self.envHeight,
             master = self)
 
         self.heightLabel = ttk.Label(text = 'Environment Height', master = self)
 
+        self.foodDensitySlider = ttk.Scale(
+            orient = tk.HORIZONTAL,
+            from_=_MIN_FOOD_DENSITY,
+            to=_MAX_FOOD_DENSITY,
+            variable = self.foodDensity,
+            command = lambda s:self.foodDensity.set('%d' % float(s)),
+            master = self)
+        
+        self.foodDensityEntry = ttk.Entry(
+            exportselection = 0,
+            validate = 'all',
+            validatecommand = (self.register(self.validateFoodDensity), '%P'),
+            textvariable = self.foodDensity,
+            master = self)
+        
+        self.foodDensityLabel = ttk.Label(text = 'Food Density (%)', master = self)
+
+        self.numOrganismsSlider = ttk.Scale(
+            orient = tk.HORIZONTAL,
+            from_=_MIN_NUM_ORGANISMS,
+            to=_MAX_NUM_ORGANISMS,
+            variable = self.numOrganisms,
+            command = lambda s:self.numOrganisms.set('%d' % float(s)),
+            master = self)
+        
+        self.numOrganismsEntry = ttk.Entry(
+            exportselection = 0,
+            validate = 'all',
+            validatecommand = (self.register(self.validateNumOrganisms), '%P'),
+            textvariable = self.numOrganisms,
+            master = self)
+        
+        self.numOrganismsLabel = ttk.Label(text = 'Initial Number Of Organisms', master = self)
+
         self.btn_return = ttk.Button(master = self, text="Return to Main Menu", command = partial(self.master.changeToMainMenu))
         self.btn_begin = ttk.Button(master = self, text="Begin Simulation")
 
+        #Set up the geometry of all the widgets
         self.columnconfigure([0, 1, 2, 3], weight = 1, minsize = _MIN_WIN_WIDTH/4)
         self.rowconfigure([0, 1, 2, 3, 4, 5], weight = 1, minsize = _MIN_WIN_HEIGHT/6)
         self.widthLabel.grid(row = 0, column = 0, padx = 10, pady = 10, sticky = "s")
@@ -153,10 +196,17 @@ class newSimFrame(ttk.Frame):
         self.widthSlider.grid(row = 1, column = 0, padx = 10, pady = 10, columnspan = 2, sticky = "new")
         self.heightEntry.grid(row = 2, column = 1, padx = 10, pady = 10, sticky = "s")
         self.heightSlider.grid(row = 3, column = 0, padx = 10, pady = 10, columnspan = 2, sticky = "new")
+        self.heightLabel.grid(row = 2, column = 0, padx = 10, pady = 10, sticky = "s")
+        self.foodDensityLabel.grid(row = 0, column = 2, padx = 10, pady = 10, sticky = "s")
+        self.foodDensityEntry.grid(row = 0, column = 3, padx = 10, pady = 10, sticky = "s")
+        self.foodDensitySlider.grid(row = 1, column = 2, padx = 10, pady = 10, columnspan = 2, sticky = "new")
+        self.numOrganismsLabel.grid(row = 2, column = 2, padx = 10, pady = 10, sticky = "s")
+        self.numOrganismsEntry.grid(row = 2, column = 3, padx = 10, pady = 10, sticky = "s")
+        self.numOrganismsSlider.grid(row = 3, column = 2, padx = 10, pady = 10, columnspan = 2, sticky = "new")
         self.btn_return.grid(row = 5, column = 0, padx = 10, pady = 10, columnspan = 4, sticky = "nsew")
         self.btn_begin.grid(row = 4, column = 0, padx = 10, pady = 10, columnspan = 4, sticky = "nsew")
 
-    def validWidth(self, P):
+    def validateWidth(self, P):
         if str.isdigit(P) and int(P) >= _MIN_ENV_WIDTH and int(P) <= _MAX_ENV_WIDTH:
             self.envWidth.set(int(P))
             return True 
@@ -165,7 +215,7 @@ class newSimFrame(ttk.Frame):
         else:
             return False
 
-    def validHeight(self, P):
+    def validateHeight(self, P):
         if str.isdigit(P) and int(P) >= _MIN_ENV_HEIGHT and int(P) <= _MAX_ENV_HEIGHT:
             self.envHeight.set(int(P))
             return True 
@@ -174,3 +224,20 @@ class newSimFrame(ttk.Frame):
         else:
             return False
 
+    def validateFoodDensity(self, P):
+        if str.isdigit(P) and int(P) >= _MIN_FOOD_DENSITY and int(P) <= _MAX_FOOD_DENSITY:
+            self.foodDensity.set(int(P))
+            return True 
+        if P == "":
+            return True
+        else:
+            return False
+
+    def validateNumOrganisms(self, P):
+        if str.isdigit(P) and int(P) >= _MIN_NUM_ORGANISMS and int(P) <= _MAX_NUM_ORGANISMS:
+            self.numOrganisms.set(int(P))
+            return True 
+        if P == "":
+            return True
+        else:
+            return False

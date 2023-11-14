@@ -70,8 +70,8 @@ class Organism:
             elif neuron_dst == neuron_src:
                 if neuron_src not in self.network:
                     self.network[neuron_src] = Organism.Neuron()
-                    self.network[neuron_src].bias = weight
-                    continue
+                self.network[neuron_src].bias = weight
+                continue
             #Create missing neurons
             if neuron_src not in self.network:
                 self.network[neuron_src] = Organism.Neuron()

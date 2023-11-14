@@ -21,8 +21,12 @@ class EnvironmentTest(unittest.TestCase):
                      "y": 4,
                      "genome": [],
                      "dir": 0}
+        obj_state = {"x": 2,
+                     "y": 3,
+                     "object_type": 'obstacle',
+                     "density": 1}
         test_dic = {"organisms": [org_state],
-                    "objects": []}
+                    "objects": [obj_state]}
         self.env.set_state(test_dic)
         message = 'Environment did not set the input state properly!'
         self.assertEqual(test_dic, self.env.get_state(), message)
@@ -61,17 +65,15 @@ class EnvironmentTest(unittest.TestCase):
         org_state = {"x": 4,
                      "y": 4,
                      "genome": []}
-        '''
         obj_state = {"x": 2,
                      "y": 3,
                      "object_type": 'obstacle',
                      "density": 1}
-        '''
         env_state = {"organisms": [org_state],
-                     "objects": []}
+                     "objects": [obj_state]}
         self.env.set_state(env_state)
         self.assertEqual(False, self.env.space_open(4, 4), 'Org not in this space!')
-        # self.assertEqual(False, self.env.space_open(2, 3), 'Obj not in this space!')
+        self.assertEqual(False, self.env.space_open(2, 3), 'Obj not in this space!')
         self.assertEqual(False, self.env.space_open(11, 4), 'Env is large enough to have this space!')
         self.assertEqual(True, self.env.space_open(3, 3), 'Some Obj/Org is in this space!')
 

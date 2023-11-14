@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
 class Object:
     def __init__(self, x, y, object_type, density):
         self.x = x

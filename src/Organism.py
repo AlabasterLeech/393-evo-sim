@@ -71,6 +71,7 @@ class Organism:
                 if neuron_src not in self.network:
                     self.network[neuron_src] = Organism.Neuron()
                     self.network[neuron_src].bias = weight
+                    continue
             #Create missing neurons
             if neuron_src not in self.network:
                 self.network[neuron_src] = Organism.Neuron()

@@ -96,7 +96,7 @@ class Organism:
             #Initialize basic neuron
             self.output = 0
             self.bias = 0
-            self.threshold = 0.8
+            self.threshold = 0.6
             self.inputs = []
             self.outputs = []
 

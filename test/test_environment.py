@@ -1,6 +1,7 @@
 import unittest
 from src.Environment import Environment
 from src.Organism import Organism
+from src.Object import Object
 
 
 class EnvironmentTest(unittest.TestCase):
@@ -54,16 +55,23 @@ class EnvironmentTest(unittest.TestCase):
         message = 'Did not create new Organism!'
         self.assertEqual(( , ), child.get_location(), message)
     """
-    
+
     # Tests if Environment holds and remembers objs/orgs in their positions
     def test_space_open(self):
         org_state = {"x": 4,
                      "y": 4,
                      "genome": []}
+        '''
+        obj_state = {"x": 2,
+                     "y": 3,
+                     "object_type": 'obstacle',
+                     "density": 1}
+        '''
         env_state = {"organisms": [org_state],
                      "objects": []}
         self.env.set_state(env_state)
-        self.assertEqual(False, self.env.space_open(4, 4), 'Obj/Org not in this space!')
+        self.assertEqual(False, self.env.space_open(4, 4), 'Org not in this space!')
+        # self.assertEqual(False, self.env.space_open(2, 3), 'Obj not in this space!')
         self.assertEqual(False, self.env.space_open(11, 4), 'Env is large enough to have this space!')
         self.assertEqual(True, self.env.space_open(3, 3), 'Some Obj/Org is in this space!')
 
@@ -73,7 +81,7 @@ class EnvironmentTest(unittest.TestCase):
         self.env.set_survival_function(fun)
         message = 'Env did not properly set the survival function!'
         self.assertEqual(55, self.env.survival_function)
-        
+
 
 if __name__ == '__main__':
     unittest.main()

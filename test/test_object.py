@@ -27,6 +27,11 @@ class ObjectTest(unittest.TestCase):
         self.obj.set_state(state)
         self.assertEqual(state['x'], self.obj.get_state()['x'], msg)
 
+    def test_get_location(self):
+        coords = (0, 0)
+        msg = 'Coordinates are not the same!'
+        self.assertEqual(coords, self.obj.get_location(), msg)
+
 
 if __name__ == '__main__':
     unittest.main()

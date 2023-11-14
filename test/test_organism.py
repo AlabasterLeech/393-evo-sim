@@ -15,8 +15,6 @@ class OrganismTest(unittest.TestCase):
         self.neuron2 = Organism.Neuron()
         self.neuron2.output = 4
         self.test_neuron = Organism.Neuron()
-        inputs = [(self.neuron1, 1), (self.neuron2, 2)]
-        self.test_neuron.inputs = inputs
         self.test_neuron.bias = 3
 
     def test_get_state(self):
@@ -36,6 +34,57 @@ class OrganismTest(unittest.TestCase):
         d = self.org.get_state()
         msg = 'States are not equal!'
         self.assertEqual(new_org_state, self.org.get_state(), msg)
+
+    def test_think(self):
+        genome = [b'\x01\x10\x05', b'\x01\x10\x06', b'\x01\x10\x07', b'\x01\x10\x08', b'\x01\x10\x01',
+                  b'\x02\x20\x05', b'\x02\x20\x06', b'\x02\x20\x07', b'\x02\x20\x08', b'\x02\x20\x02',
+                  b'\x03\x30\x05', b'\x03\x30\x06', b'\x03\x30\x07', b'\x03\x30\x08', b'\x03\x30\x03',
+                  b'\x04\x40\x05', b'\x04\x40\x06', b'\x04\x40\x07', b'\x04\x40\x08', b'\x04\x40\x04',
+                  b'\x05\x15\x05', b'\x06\x25\x06', b'\x07\x35\x07', b'\x08\x45\x08']
+        self.org.set_genome(genome)
+        self.org.build_network()
+        self.org.think()
+        print(1 in self.org.network)
+        print(self.org.network[1].output)
+        print(self.org.network[1].bias)
+        print(self.org.network[1].get_output_thresh())
+
+    def test_mutate(self):
+        chance = 2147483647
+        genome = [b'\x01\x01\x01']
+        self.org.set_genome(genome)
+        self.org.mutate(chance)
+        new_genome = self.org.get_genome()
+        msg = 'Random byte in gene did not change!'
+        self.assertTrue(new_genome != genome[0], msg)
+
+    def test_build_network(self):
+        weight = int.from_bytes(b'\x02', byteorder="little", signed=True) / 64.
+        # Test for skipping
+        self.org.set_genome([b'\x03\x02\x01'])
+        self.org.build_network()
+        skip_net_msg = 'Did not skip the neurons!'
+        self.assertEqual({}, self.org.network, skip_net_msg)
+
+        # Test for empty network
+        self.org.set_genome([b'\x01\x02\x03'])
+        self.org.build_network()
+        empty_net_msg = 'Not the correct weight value!'
+        self.assertEqual(weight, self.org.network[3].inputs[0][1], empty_net_msg)
+
+        # Test for same src ID for two genes
+        self.org.set_genome([b'\x01\x02\x03', b'\x01\x02\x04'])
+        self.org.build_network()
+        same_id_output_msg = 'Neuron does not have the correct number of output Neurons!'
+        same_id_input_msg = 'Neuron does not have the correct number of input Neurons!'
+        self.assertEqual(2, len(self.org.network[1].outputs), same_id_output_msg)
+        self.assertEqual(1, len(self.org.network[3].inputs), same_id_input_msg)
+
+        # Test for same src and dst ID
+        self.org.set_genome([b'\x01\x02\x01'])
+        self.org.build_network()
+        same_ids_msg = 'Neuron bias was not set to weight!'
+        self.assertEqual(weight, self.org.network[1].bias, same_ids_msg)
 
     def test_get_genome(self):
         gen = [1, 2, 3]
@@ -58,6 +107,10 @@ class OrganismTest(unittest.TestCase):
         msg = 'Different locations!'
         self.assertEqual(location, self.org.get_location(), msg)
 
+    '''
+    Neuron Tests
+    '''
+
     def test_activation(self):
         signal = 5
         activated = self.test_neuron.activation(signal)
@@ -67,6 +120,7 @@ class OrganismTest(unittest.TestCase):
         self.assertEqual(tanh, activated, msg)
 
     def test_calc_output(self):
+        self.test_neuron.inputs = [(self.neuron1, 1), (self.neuron2, 2)]
         self.test_neuron.calc_output()
         test_output = self.test_neuron.get_output()
         calc_signal = self.neuron1.output * 1 + self.neuron2.output * 2 + self.test_neuron.bias
@@ -78,6 +132,24 @@ class OrganismTest(unittest.TestCase):
         # Check default output value
         msg = 'Different output values!'
         self.assertEqual(self.test_neuron.output, 0, msg)
+
+    def test_get_output_thresh(self):
+        message = 'Incorrect comparison in get_output_thresh!'
+        low_out = 0.5
+        self.test_neuron.output = low_out
+        self.assertFalse(self.test_neuron.get_output_thresh())
+        high_out = 1.0
+        self.test_neuron.output = high_out
+        self.assertTrue(self.test_neuron.get_output_thresh())
+
+    def test_add_input(self):
+        msg = 'Default input not empty!'
+        self.assertTrue(self.test_neuron.inputs == [], msg)
+        self.test_neuron.add_input(self.neuron1, 1)
+        msg_after = 'Wrong input neuron or weight!'
+        self.assertTrue((self.neuron1, 1) in self.test_neuron.inputs, msg_after)
+        msg_other = 'Did not properly connect neurons or wrong weight!'
+        self.assertTrue(self.test_neuron in self.neuron1.outputs, msg_other)
 
 
 if __name__ == '__main__':

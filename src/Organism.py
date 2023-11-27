@@ -7,6 +7,11 @@ class Organism:
     _SOUTH = 2
     _WEST = 3
 
+    STIMULI = [
+        lambda organism: random.randrange(-2, 2)
+    ] * 64
+    STIMULUS_WEIGHT = 2.
+
     def __init__(self, state):
         #Initialize minimally functional default state
         self.x, self.y = 0, 0
@@ -79,6 +84,10 @@ class Organism:
                 self.network[neuron_dst] = Organism.Neuron()
             #Create connection
             self.network[neuron_dst].add_input(self.network[neuron_src], weight)
+        #Connect stimuli to first several neurons
+        for i in range(len(Organism.STIMULI)):
+            if i in self.network:
+                self.network[i].add_input(Organism.Stimulus(Organism.STIMULI[i], self), Organism.STIMULUS_WEIGHT)
 
     def get_genome(self):
         #Return current genome
@@ -129,3 +138,20 @@ class Organism:
             signal = sum([neuron[0].get_output() * neuron[1] for neuron in self.inputs])
             signal += self.bias
             self.output = self.activation(signal)
+    
+    class Stimulus:
+        def __init__(self, stimulus, organism):
+            #Initialize a stimulus
+            self.output = stimulus
+            self.organism = organism
+        
+        def get_output(self):
+            #Return stimulus
+            if self.output:
+                return self.output(self.organism)
+            else:
+                return 0.
+        
+        def add_output(self, _):
+            #Dummy function for compatibility
+            None

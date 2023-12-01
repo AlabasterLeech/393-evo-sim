@@ -36,6 +36,7 @@ class gameWindow(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self.title(_WINDOW_TITLE)
+        #self.maxsize(_MIN_WIN_WIDTH,_MIN_WIN_HEIGHT)
         self.minsize(_MIN_WIN_WIDTH,_MIN_WIN_HEIGHT)
         self.mainMenu = mainFrame(self)
         self.tutMenu = tutorialFrame(self)
@@ -43,7 +44,7 @@ class gameWindow(tk.Tk):
         self.simulationMenu = simulationFrame(self)
         self.attachedSimulation = None
         self.simFilePath = None
-        self.resizable(False, False)
+        #self.resizable(False, False)
         try:
             iconFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "cellvolution_icon.ico"))
             self.iconbitmap(iconFilePath)
@@ -85,8 +86,8 @@ class mainFrame(ttk.Frame):
     def __init__(self, master):
         ttk.Frame.__init__(self, master)
 
-        self.columnconfigure(0, weight = 1, minsize = _MIN_WIN_WIDTH)
-        self.rowconfigure([0, 1, 2, 3], weight = 1, minsize = _MIN_WIN_HEIGHT/4)
+        self.columnconfigure(0, weight = 1)
+        self.rowconfigure([0, 1, 2, 3], weight = 1)
 
         self.lbl_name = ttk.Label(master = self)
         self.btn_newSim = ttk.Button(master = self, text="New Simulation", command = partial(master.changeToNewSimMenu))
@@ -101,10 +102,10 @@ class mainFrame(ttk.Frame):
         except:
             self.lbl_name.config(text = "Cellvolution")
         
-        self.lbl_name.grid(row = 0, column = 0, padx = 10, pady = 10, sticky = "nsew")
-        self.btn_newSim.grid(row = 1, column = 0, padx = 10, pady = 10, sticky = "nsew")
-        self.btn_loadSim.grid(row = 2, column = 0, padx = 10, pady = 10, sticky = "nsew")
-        self.btn_tutorial.grid(row = 3, column = 0, padx = 10, pady = 10, sticky = "nsew")
+        self.lbl_name.grid(row = 0, column = 0, sticky = "ns", pady = 10, padx = 10)
+        self.btn_newSim.grid(row = 1, column = 0, sticky = "nsew", pady = 10, padx = 10)
+        self.btn_loadSim.grid(row = 2, column = 0, sticky = "nsew", pady = 10, padx = 10)
+        self.btn_tutorial.grid(row = 3, column = 0, sticky = "nsew", pady = 10, padx = 10)
 
         
             
@@ -114,8 +115,8 @@ class tutorialFrame(ttk.Frame):
     def __init__(self, master):
         ttk.Frame.__init__(self, master)
 
-        self.columnconfigure(0, weight = 1, minsize = _MIN_WIN_WIDTH)
-        self.rowconfigure(0, weight = 1, minsize = _MIN_WIN_HEIGHT-50)
+        self.columnconfigure(0, weight = 1)
+        self.rowconfigure(0, weight = 1)
         
         self.btn_return = ttk.Button(master = self, text="Return to Main Menu", command = partial(self.master.changeToMainMenu))
         
@@ -126,8 +127,8 @@ class tutorialFrame(ttk.Frame):
             self.txt_tutorial.insert(tk.INSERT, f.read())
             f.close()
         
-        self.txt_tutorial.grid(row = 0, column = 0, padx = 10, pady = 10, sticky = "nsew")
-        self.btn_return.grid(row = 1, column = 0, padx = 10, pady = 10, sticky = "nsew")
+        self.txt_tutorial.grid(row = 0, column = 0, sticky = "nsew", padx = 10)
+        self.btn_return.grid(row = 1, column = 0, sticky = "nsew", pady = 10, padx = 10)
 
 class newSimFrame(ttk.Frame):
     """newSimFrame docstring"""
@@ -227,7 +228,7 @@ class newSimFrame(ttk.Frame):
 
         #Set up the geometry of all the widgets
         self.columnconfigure([0, 1, 2, 3], weight = 1, minsize = _MIN_WIN_WIDTH/4)
-        self.rowconfigure([0, 1, 2, 3, 4, 5, 6], weight = 1, minsize = _MIN_WIN_HEIGHT/6)
+        self.rowconfigure([0, 1, 2, 3, 4, 5, 6], weight = 1, minsize = _MIN_WIN_HEIGHT/7)
 
         self.survivalFunctionLabel.grid(row = 0, column = 0, padx = 10, pady = 10)
         self.survivalFunctionSelector.grid(row = 0, column = 1, padx = 10, pady = 10, columnspan = 3, sticky = "ew")
@@ -361,7 +362,7 @@ class simulationFrame(ttk.Frame):
         except:
             self.btn_modify.config(text = "Modify Simulation")
 
-        self.btn_exit = ttk.Button(master = self)
+        self.btn_exit = ttk.Button(master = self, command = partial(self.master.changeToMainMenu))
         try:
             exitIconFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "exit.png"))
             self.exitIcon = ImageTk.PhotoImage(Image.open(exitIconFilePath))

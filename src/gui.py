@@ -7,6 +7,7 @@ from tkinter import ttk
 from tkinter import scrolledtext
 from tkinter import filedialog
 from functools import partial
+from PIL import Image, ImageTk
 import os
 
 #Module level constant definitions.
@@ -21,6 +22,7 @@ _MIN_FOOD_DENSITY = 5
 _MAX_FOOD_DENSITY = 25
 _MIN_NUM_ORGANISMS = 100
 _MAX_NUM_ORGANISMS = 10000
+_SIM_BUTTON_DEFAULT_SIZE = 50
 
 
 
@@ -38,7 +40,10 @@ class gameWindow(tk.Tk):
         self.mainMenu = mainFrame(self)
         self.tutMenu = tutorialFrame(self)
         self.newSimMenu = newSimFrame(self)
+        self.simulationMenu = simulationFrame(self)
+        self.attachedSimulation = None
         self.simFilePath = None
+        self.resizable(False, False)
         
 
     """Method to forget everything currently being displayed in the game window.
@@ -64,6 +69,13 @@ class gameWindow(tk.Tk):
     def changeToNewSimMenu(self):
         self.clearWindow()
         self.newSimMenu.pack(fill = tk.BOTH, expand = True)
+
+    def changeToSimulationMenu(self):
+        self.clearWindow()
+        self.simulationMenu.pack(fill = tk.BOTH, expand = True)
+
+    def attachSimulation(self, simulation):
+        self.attachedSimulation = simulation
 
 class mainFrame(ttk.Frame):
     """mainFrame docstring"""
@@ -105,6 +117,7 @@ class tutorialFrame(ttk.Frame):
         self.btn_return.grid(row = 1, column = 0, padx = 10, pady = 10, sticky = "nsew")
 
 class newSimFrame(ttk.Frame):
+    """newSimFrame docstring"""
     def __init__(self,master):
         ttk.Frame.__init__(self, master)
 
@@ -197,7 +210,7 @@ class newSimFrame(ttk.Frame):
         self.survivalFunctionLabel = ttk.Label(text = 'Survival Function', master = self)
 
         self.btn_return = ttk.Button(master = self, text="Return to Main Menu", command = partial(self.master.changeToMainMenu))
-        self.btn_begin = ttk.Button(master = self, text="Begin Simulation")
+        self.btn_begin = ttk.Button(master = self, text="Begin Simulation", command = partial(self.master.changeToSimulationMenu)) #TODO: pass values to attached simulation
 
         #Set up the geometry of all the widgets
         self.columnconfigure([0, 1, 2, 3], weight = 1, minsize = _MIN_WIN_WIDTH/4)
@@ -226,6 +239,8 @@ class newSimFrame(ttk.Frame):
         self.btn_begin.grid(row = 5, column = 0, padx = 10, pady = 10, columnspan = 4, sticky = "nsew")
 
     def validateWidth(self, P):
+        """Validates that the value of the width widget is an integer and inside the bounds set by the constants.
+        Called by the widget's internal validation functionality."""
         if str.isdigit(P) and int(P) >= _MIN_ENV_WIDTH and int(P) <= _MAX_ENV_WIDTH:
             self.envWidth.set(int(P))
             return True 
@@ -235,6 +250,8 @@ class newSimFrame(ttk.Frame):
             return False
 
     def validateHeight(self, P):
+        """Validates that the value of the height widget is an integer and inside the bounds set by the constants.
+        Called by the widget's internal validation functionality."""
         if str.isdigit(P) and int(P) >= _MIN_ENV_HEIGHT and int(P) <= _MAX_ENV_HEIGHT:
             self.envHeight.set(int(P))
             return True 
@@ -244,6 +261,8 @@ class newSimFrame(ttk.Frame):
             return False
 
     def validateFoodDensity(self, P):
+        """Validates that the value of the food density widget is an integer and inside the bounds set by the constants.
+        Called by the widget's internal validation functionality."""
         if str.isdigit(P) and int(P) >= _MIN_FOOD_DENSITY and int(P) <= _MAX_FOOD_DENSITY:
             self.foodDensity.set(int(P))
             return True 
@@ -253,6 +272,8 @@ class newSimFrame(ttk.Frame):
             return False
 
     def validateNumOrganisms(self, P):
+        """Validates that the value of the num organisms widget is an integer and inside the bounds set by the constants.
+        Called by the widget's internal validation functionality."""
         if str.isdigit(P) and int(P) >= _MIN_NUM_ORGANISMS and int(P) <= _MAX_NUM_ORGANISMS:
             self.numOrganisms.set(int(P))
             return True 
@@ -260,3 +281,95 @@ class newSimFrame(ttk.Frame):
             return True
         else:
             return False
+        
+class simulationFrame(ttk.Frame):
+    """simulationFrame docstring"""
+    def __init__(self,master):
+        ttk.Frame.__init__(self, master)
+
+        self.canvasFrame = ttk.Frame(master = self)
+        self.canvasHorizScrollBar = tk.Scrollbar(master = self.canvasFrame, orient = 'horizontal')
+        self.canvasVertiScrollBar = tk.Scrollbar(master = self.canvasFrame, orient = 'vertical')
+        #in the near future this canvas will be initilized with values grabbed from the simulation, but for now it has dummy values.
+        self.simDisplayCanvas = tk.Canvas(master = self.canvasFrame, scrollregion = (0,0,1000,1000),
+                                          xscrollcommand = self.canvasHorizScrollBar.set, yscrollcommand = self.canvasVertiScrollBar.set)
+        self.canvasHorizScrollBar.config(command = self.simDisplayCanvas.xview)
+        self.canvasVertiScrollBar.config(command = self.simDisplayCanvas.yview)
+
+        #placeholder canvas background until the simulation class is complete
+        try:
+            bgFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "testimage.png"))
+            self.bgImg = ImageTk.PhotoImage(Image.open(bgFilePath))
+            self.simDisplayCanvas.create_image(500, 500, image = self.bgImg)
+        except:
+            self.simDisplayCanvas.config(bg = "red")
+            
+        self.canvasHorizScrollBar.pack(side = 'bottom', fill = 'x')
+        self.canvasVertiScrollBar.pack(side = 'left', fill = 'y')
+        self.simDisplayCanvas.pack(side= 'bottom', fill = 'both', expand = 1)
+
+        self.btn_play = ttk.Button(master = self)
+        try:
+            playIconFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "play.png"))
+            self.playIcon = ImageTk.PhotoImage(Image.open(playIconFilePath))
+            self.btn_play.config(image = self.playIcon)
+        except:
+            self.btn_play.config(text = "Play")
+
+        self.btn_pause = ttk.Button(master = self)
+        try:
+            pauseIconFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "pause.png"))
+            self.pauseIcon = ImageTk.PhotoImage(Image.open(pauseIconFilePath))
+            self.btn_pause.config(image = self.pauseIcon)
+        except:
+            self.btn_pause.config(text = "Pause")
+
+        self.btn_advance_one = ttk.Button(master = self)
+        try:
+            advance_oneIconFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "advance_one.png"))
+            self.advance_oneIcon = ImageTk.PhotoImage(Image.open(advance_oneIconFilePath))
+            self.btn_advance_one.config(image = self.advance_oneIcon)
+        except:
+            self.btn_advance_one.config(text = "Advance One Generation")
+            
+        self.btn_save = ttk.Button(master = self)
+        try:
+            saveIconFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "save.png"))
+            self.saveIcon = ImageTk.PhotoImage(Image.open(saveIconFilePath))
+            self.btn_save.config(image = self.saveIcon)
+        except:
+            self.btn_save.config(text = "Save")
+
+        self.btn_modify = ttk.Button(master = self)
+        try:
+            modifyIconFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "modify.png"))
+            self.modifyIcon = ImageTk.PhotoImage(Image.open(modifyIconFilePath))
+            self.btn_modify.config(image = self.modifyIcon)
+        except:
+            self.btn_modify.config(text = "Modify Simulation")
+
+        self.btn_exit = ttk.Button(master = self)
+        try:
+            exitIconFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "exit.png"))
+            self.exitIcon = ImageTk.PhotoImage(Image.open(exitIconFilePath))
+            self.btn_exit.config(image = self.exitIcon)
+        except:
+            self.btn_exit.config(text = "Exit Simulation")
+        
+        #set up the geometry of all the widgets
+        self.columnconfigure([0, 1, 2, 3, 4 ,5], weight = 1, minsize = _SIM_BUTTON_DEFAULT_SIZE)
+        self.columnconfigure(6, weight = 2, minsize = 180)
+        self.rowconfigure(0, weight = 7, minsize = _SIM_BUTTON_DEFAULT_SIZE)
+        self.rowconfigure(1, weight = 1, minsize = _SIM_BUTTON_DEFAULT_SIZE)
+
+        self.canvasFrame.grid(row = 0, column = 0, columnspan = 6, sticky = "nsew")
+        self.btn_play.grid(row = 1, column = 0, sticky = "nsew")
+        self.btn_pause.grid(row = 1, column = 1, sticky = "nsew")
+        self.btn_advance_one.grid(row = 1, column = 2, sticky = "nsew")
+        self.btn_save.grid(row = 1, column = 3, sticky = "nsew")
+        self.btn_modify.grid(row = 1, column = 4, sticky = "nsew")
+        self.btn_exit.grid(row = 1, column = 5, sticky = "nsew")
+
+        
+        
+        

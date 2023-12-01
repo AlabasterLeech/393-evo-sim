@@ -44,8 +44,11 @@ class gameWindow(tk.Tk):
         self.attachedSimulation = None
         self.simFilePath = None
         self.resizable(False, False)
-        
-
+        try:
+            iconFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "cellvolution_icon.ico"))
+            self.iconbitmap(iconFilePath)
+        except:
+            print("Failure loading icon")
     """Method to forget everything currently being displayed in the game window.
     IMPORTANT: This does not deallocate the memory for the frames/widgets which means they can be reused
     but also means they should not be recreated as this could lead to memory leakage."""
@@ -85,16 +88,26 @@ class mainFrame(ttk.Frame):
         self.columnconfigure(0, weight = 1, minsize = _MIN_WIN_WIDTH)
         self.rowconfigure([0, 1, 2, 3], weight = 1, minsize = _MIN_WIN_HEIGHT/4)
 
-        self.lbl_nameText = ttk.Label(master = self, text="Cellvolution")
+        self.lbl_name = ttk.Label(master = self)
         self.btn_newSim = ttk.Button(master = self, text="New Simulation", command = partial(master.changeToNewSimMenu))
         self.btn_loadSim = ttk.Button(master = self, text="Load Simulation")
         self.btn_loadSim.bind("<Button-1>", master.getFilePath)
         self.btn_tutorial = ttk.Button(master = self, text="Tutorial", command = partial(master.changeToTutorialMenu))
 
-        self.lbl_nameText.grid(row = 0, column = 0, padx = 10, pady = 10, sticky = "ns")
+        try:
+            logoFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "logo.png"))
+            self.logoImg = ImageTk.PhotoImage(Image.open(logoFilePath))
+            self.lbl_name.config(image = self.logoImg)
+        except:
+            self.lbl_name.config(text = "Cellvolution")
+        
+        self.lbl_name.grid(row = 0, column = 0, padx = 10, pady = 10, sticky = "nsew")
         self.btn_newSim.grid(row = 1, column = 0, padx = 10, pady = 10, sticky = "nsew")
         self.btn_loadSim.grid(row = 2, column = 0, padx = 10, pady = 10, sticky = "nsew")
         self.btn_tutorial.grid(row = 3, column = 0, padx = 10, pady = 10, sticky = "nsew")
+
+        
+            
         
 class tutorialFrame(ttk.Frame):
     """tutorialFrame docstring"""
@@ -369,7 +382,3 @@ class simulationFrame(ttk.Frame):
         self.btn_save.grid(row = 1, column = 3, sticky = "nsew")
         self.btn_modify.grid(row = 1, column = 4, sticky = "nsew")
         self.btn_exit.grid(row = 1, column = 5, sticky = "nsew")
-
-        
-        
-        

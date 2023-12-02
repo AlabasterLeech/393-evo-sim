@@ -333,15 +333,6 @@ class simulationFrame(ttk.Frame):
                                           xscrollcommand = self.canvasHorizScrollBar.set, yscrollcommand = self.canvasVertiScrollBar.set)
         self.canvasHorizScrollBar.config(command = self.simDisplayCanvas.xview)
         self.canvasVertiScrollBar.config(command = self.simDisplayCanvas.yview)
-        
-        #placeholder canvas background until the simulation class is complete
-        #try:
-        #    bgFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "testimage.png"))
-        #    self.bgImg = ImageTk.PhotoImage(Image.open(bgFilePath))
-        #    self.simDisplayCanvas.create_image(500, 500, image = self.bgImg)
-        #except:
-        #    self.simDisplayCanvas.config(bg = "red")
-        
 
         self.btn_play = ttk.Button(master = self)
         try:

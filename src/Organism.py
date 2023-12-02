@@ -8,8 +8,24 @@ class Organism:
     _WEST = 3
 
     STIMULI = [
-        lambda organism: random.randrange(-2, 2)
+        lambda organism, env: random.randrange(-2, 2)
     ] * 64
+    ACTIONS = [
+        lambda organism: organism.x, organism.y = [
+            (organism.x, organism.y - 1),
+            (organism.x + 1, organism.y),
+            (organism.x, organism.y + 1),
+            (organism.x - 1, organism.y)][organism.dir],
+        lambda organism: organism.x, organism.y = [
+            (organism.x, organism.y + 1),
+            (organism.x - 1, organism.y),
+            (organism.x, organism.y - 1),
+            (organism.x + 1, organism.y)][organism.dir],
+        lambda organism: organism.dir = (organism.dir - 1) % 4,
+        lambda organism: organism.dir = (organism.dir + 1) % 4,
+        lambda organism: None,
+        lambda organism: None
+    ]
     STIMULUS_WEIGHT = 2.
 
     def __init__(self, state):
@@ -44,7 +60,13 @@ class Organism:
     
     def act(self, env):
         #Generate list of desired actions
-        None
+        actions = []
+        for i in range(len(Organism.ACTIONS)):
+            if self.network[-i-1].get_output_thresh():
+                actions.append(i)
+        actions = env.check(actions, self)
+        for i in actions:
+            Organism.ACTIONS[i](self)
 
     def consume(self, object):
         #Modify values according to object composition

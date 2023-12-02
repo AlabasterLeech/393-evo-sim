@@ -18,6 +18,7 @@ def main():
     cellvolutionWindow.changeToMainMenu()
     cellvolutionWindow.mainloop()
 
+    #TODO Instantiate a simulation and attach it and the GUI together
 
 if __name__ == '__main__':
     main()

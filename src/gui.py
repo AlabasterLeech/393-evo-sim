@@ -10,6 +10,8 @@ from functools import partial
 from PIL import Image, ImageTk
 import os
 
+import Simulation
+
 #Module level constant definitions.
 _WINDOW_TITLE = "Cellvolution 1.0"
 _MIN_WIN_WIDTH = 640
@@ -22,9 +24,10 @@ _MIN_FOOD_DENSITY = 5
 _MAX_FOOD_DENSITY = 25
 _MIN_NUM_ORGANISMS = 100
 _MAX_NUM_ORGANISMS = 10000
-_SIM_BUTTON_DEFAULT_SIZE = 50
-
-
+_SIM_BUTTON_DEFAULT_SIZE = 75
+_FOOD_COLOR = "#82d322"
+_ORGANISM_COLOR = "#7d7dff"
+_OBSTACLE_COLOR = "#595959"
 
 class gameWindow(tk.Tk):
     """A gameWindow is an extenstion of a tkinter root which initializes with the ttk frames needed
@@ -36,15 +39,15 @@ class gameWindow(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self.title(_WINDOW_TITLE)
-        #self.maxsize(_MIN_WIN_WIDTH,_MIN_WIN_HEIGHT)
         self.minsize(_MIN_WIN_WIDTH,_MIN_WIN_HEIGHT)
+        self.attachedSimulation = Simulation.Simulation(0,0)
+        self.simFilePath = None
         self.mainMenu = mainFrame(self)
         self.tutMenu = tutorialFrame(self)
         self.newSimMenu = newSimFrame(self)
         self.simulationMenu = simulationFrame(self)
-        self.attachedSimulation = None
-        self.simFilePath = None
-        #self.resizable(False, False)
+
+
         try:
             iconFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "cellvolution_icon.ico"))
             self.iconbitmap(iconFilePath)
@@ -80,6 +83,19 @@ class gameWindow(tk.Tk):
 
     def attachSimulation(self, simulation):
         self.attachedSimulation = simulation
+
+    def simCanvasUpdate(self):
+        self.simulationMenu.simDisplayCanvas.config(scrollregion = (0, 0, self.attachedSimulation.env.width,self.attachedSimulation.env.height))
+        for obj in self.attachedSimulation.env.get_state()["objects"]:
+            objState = obj.get_state()
+            if objState["object_type"] == 'food':
+                self.simulationMenu.simDisplayCanvas.create_rectangle((objState["x"], objState["y"])*2, outline = "", fill = _FOOD_COLOR)
+            if objState["object_type"] == 'obstacle':
+                self.simulationMenu.simDisplayCanvas.create_rectangle((objState["x"], objState["y"])*2, outline = "", fill = _OBSTACLE_COLOR)
+
+        for org in self.attachedSimulation.env.get_state()["organisms"]:
+            orgState = org.get_state()
+            self.simulationMenu.simDisplayCanvas.create_rectangle((orgState["x"], orgState["y"])*2, outline = "", fill = _ORGANISM_COLOR)
 
 class mainFrame(ttk.Frame):
     """mainFrame docstring"""
@@ -224,7 +240,7 @@ class newSimFrame(ttk.Frame):
         self.survivalFunctionLabel = ttk.Label(text = 'Survival Function', master = self)
 
         self.btn_return = ttk.Button(master = self, text="Return to Main Menu", command = partial(self.master.changeToMainMenu))
-        self.btn_begin = ttk.Button(master = self, text="Begin Simulation", command = partial(self.master.changeToSimulationMenu)) #TODO: pass values to attached simulation
+        self.btn_begin = ttk.Button(master = self, text="Begin Simulation", command = partial(self.beginSimulation)) #TODO: pass values to attached simulation
 
         #Set up the geometry of all the widgets
         self.columnconfigure([0, 1, 2, 3], weight = 1, minsize = _MIN_WIN_WIDTH/4)
@@ -295,6 +311,14 @@ class newSimFrame(ttk.Frame):
             return True
         else:
             return False
+
+    def beginSimulation(self):
+        """Instantiates a simulation with the values present in the selections and attaches it to the object's master.
+        Then changes the master frame to the simulation menu."""
+        sim = Simulation.Simulation(self.envWidth.get(), self.envHeight.get())
+        self.master.attachSimulation(sim)
+        self.master.simCanvasUpdate()
+        self.master.changeToSimulationMenu()
         
 class simulationFrame(ttk.Frame):
     """simulationFrame docstring"""
@@ -304,23 +328,20 @@ class simulationFrame(ttk.Frame):
         self.canvasFrame = ttk.Frame(master = self)
         self.canvasHorizScrollBar = tk.Scrollbar(master = self.canvasFrame, orient = 'horizontal')
         self.canvasVertiScrollBar = tk.Scrollbar(master = self.canvasFrame, orient = 'vertical')
-        #in the near future this canvas will be initilized with values grabbed from the simulation, but for now it has dummy values.
-        self.simDisplayCanvas = tk.Canvas(master = self.canvasFrame, scrollregion = (0,0,1000,1000),
+        self.simDisplayCanvas = tk.Canvas(master = self.canvasFrame,
+                                          scrollregion = (0, 0, self.master.attachedSimulation.env.width,self.master.attachedSimulation.env.height),
                                           xscrollcommand = self.canvasHorizScrollBar.set, yscrollcommand = self.canvasVertiScrollBar.set)
         self.canvasHorizScrollBar.config(command = self.simDisplayCanvas.xview)
         self.canvasVertiScrollBar.config(command = self.simDisplayCanvas.yview)
-
+        
         #placeholder canvas background until the simulation class is complete
-        try:
-            bgFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "testimage.png"))
-            self.bgImg = ImageTk.PhotoImage(Image.open(bgFilePath))
-            self.simDisplayCanvas.create_image(500, 500, image = self.bgImg)
-        except:
-            self.simDisplayCanvas.config(bg = "red")
-            
-        self.canvasHorizScrollBar.pack(side = 'bottom', fill = 'x')
-        self.canvasVertiScrollBar.pack(side = 'left', fill = 'y')
-        self.simDisplayCanvas.pack(side= 'bottom', fill = 'both', expand = 1)
+        #try:
+        #    bgFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "testimage.png"))
+        #    self.bgImg = ImageTk.PhotoImage(Image.open(bgFilePath))
+        #    self.simDisplayCanvas.create_image(500, 500, image = self.bgImg)
+        #except:
+        #    self.simDisplayCanvas.config(bg = "red")
+        
 
         self.btn_play = ttk.Button(master = self)
         try:
@@ -376,7 +397,11 @@ class simulationFrame(ttk.Frame):
         self.rowconfigure(0, weight = 7, minsize = _SIM_BUTTON_DEFAULT_SIZE)
         self.rowconfigure(1, weight = 1, minsize = _SIM_BUTTON_DEFAULT_SIZE)
 
+        self.canvasHorizScrollBar.pack(side = 'bottom', fill = 'x')
+        self.canvasVertiScrollBar.pack(side = 'left', fill = 'y')
+        self.simDisplayCanvas.pack(fill='both', expand = 1)
         self.canvasFrame.grid(row = 0, column = 0, columnspan = 6, sticky = "nsew")
+        
         self.btn_play.grid(row = 1, column = 0, sticky = "nsew")
         self.btn_pause.grid(row = 1, column = 1, sticky = "nsew")
         self.btn_advance_one.grid(row = 1, column = 2, sticky = "nsew")

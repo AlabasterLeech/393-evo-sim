@@ -36,17 +36,14 @@ class Organism:
         for attr in state:
             setattr(self, attr, state[attr])
 
-    def think(self):
+    def think(self, env):
         #Calculate neuron states
         for i in range(256):
             if i in self.network:
                 self.network[i].calc_output()
-        #Generate list of desired actions
-        actions = {}
-        return actions
     
-    def act(self, actions):
-        #Carry out actions
+    def act(self, env):
+        #Generate list of desired actions
         None
 
     def consume(self, object):

@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
 import random
 from src.Organism import Organism
 from src.Object import Object
@@ -68,6 +63,93 @@ class Environment:
 
     def crossover(self, genome1, genome2):
         # Creates a new genome by combining the two parents genomes at the crossover point
-        crossover_point = random.randint(0, len(genome1) - 1)
-        new_genome = genome1[:crossover_point] + genome2[crossover_point:]
+        new_genome = []
+        for i in range(min(len(genome1), len(genome2))):
+            # Performs crossover for each gene pair
+            selected_gene = genome1[i] if random.choice([True, False]) else genome2[i]
+            new_genome.append(selected_gene)
         return new_genome
+
+    def check(self, actions, organism):
+        # Checks the validity of the desired actions 
+        valid_actions = []
+        for action in actions:
+            if self.check_function[action](organism):
+                valid_actions.append(action)
+        return valid_actions
+
+    def check_move_forward(self, organism):
+        x, y = organism.get_location()
+        if organism.dir == Organism._NORTH and self.space_open(x, y + 1):
+            return True
+        elif organism.dir == Organism._EAST and self.space_open(x + 1, y):
+            return True
+        elif organism.dir == Organism._SOUTH and self.space_open(x, y - 1):
+            return True
+        elif organism.dir == Organism._WEST and self.space_open(x - 1, y):
+            return True
+        return False
+
+    def check_move_backward(self, organism):
+        x, y = organism.get_location()
+        if organism.dir == Organism._NORTH and self.space_open(x, y - 1):
+            return True
+        elif organism.dir == Organism._EAST and self.space_open(x - 1, y):
+            return True
+        elif organism.dir == Organism._SOUTH and self.space_open(x, y + 1):
+            return True
+        elif organism.dir == Organism._WEST and self.space_open(x + 1, y):
+            return True
+        return False
+
+    def check_turn_left(self, organism):
+        return True  # Turning left is always allowed
+
+    def check_turn_right(self, organism):
+        return True  # Turning right is always allowed
+
+    def check_consume(self, organism):
+        x, y = organism.get_location()
+        if organism.dir == Organism._NORTH and self.object_in_front(x, y + 1, 'food'):
+            return True
+        elif organism.dir == Organism._EAST and self.object_in_front(x + 1, y, 'food'):
+            return True
+        elif organism.dir == Organism._SOUTH and self.object_in_front(x, y - 1, 'food'):
+            return True
+        elif organism.dir == Organism._WEST and self.object_in_front(x - 1, y, 'food'):
+            return True
+        return False
+
+    def check_kill(self, organism):
+        x, y = organism.get_location()
+        if organism.dir == Organism._NORTH and self.organism_in_front(x, y + 1):
+            return True
+        elif organism.dir == Organism._EAST and self.organism_in_front(x + 1, y):
+            return True
+        elif organism.dir == Organism._SOUTH and self.organism_in_front(x, y - 1):
+            return True
+        elif organism.dir == Organism._WEST and self.organism_in_front(x - 1, y):
+            return True
+        return False
+
+    def object_in_front(self, x, y, obj_type):
+        for obj in self.objects:
+            if obj.get_location() == (x, y) and obj.object_type == obj_type:
+                return True
+        return False
+
+    def organism_in_front(self, x, y):
+        for org in self.organisms:
+            if org.get_location() == (x, y):
+                return True
+        return False
+
+# Initializing the check function list
+check_function = [
+    Environment.check_move_forward,
+    Environment.check_move_backward,
+    Environment.check_turn_left,
+    Environment.check_turn_right,
+    Environment.check_consume,
+    Environment.check_kill
+]

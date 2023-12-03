@@ -18,7 +18,15 @@ def main():
     cellvolutionWindow.changeToMainMenu()
     
     #GUI Event loop and simulation game loop
-    cellvolutionWindow.mainloop()
+    #This replaces the 'mainloop()' call in
+    #regular TK GUI programs
+    
+    #TODO: add logic that calls the simulation's
+    #step() and step_gen() functions at reasonable/correct
+    #frequency inside this loop
+    while(True):
+        cellvolutionWindow.simCanvasUpdate()
+        cellvolutionWindow.update()
 
 if __name__ == '__main__':
     main()

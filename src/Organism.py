@@ -177,4 +177,3 @@ class Organism:
         def add_output(self, _):
             # Dummy function for compatibility
             None
-

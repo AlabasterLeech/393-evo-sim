@@ -1,6 +1,6 @@
 import random
-from Organism import Organism
-from Object import Object
+from src.Organism import Organism
+from src.Object import Object
 
 
 class Environment:
@@ -11,6 +11,14 @@ class Environment:
         self.organisms = []  # A list to store all organisms in the environment
         self.objects = []  # A list to store non-living entities like food and obstacles
         self.survival_function = None  # The function to determine organism survival probability
+        self.check_function = [
+            self.check_move_forward,
+            self.check_move_backward,
+            self.check_turn_left,
+            self.check_turn_right,
+            self.check_consume,
+            self.check_kill
+        ]
 
     def get_state(self):
         # Return the current state of the environment
@@ -144,12 +152,3 @@ class Environment:
                 return True
         return False
 
-# Initializing the check function list
-check_function = [
-    Environment.check_move_forward,
-    Environment.check_move_backward,
-    Environment.check_turn_left,
-    Environment.check_turn_right,
-    Environment.check_consume,
-    Environment.check_kill
-]

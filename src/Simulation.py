@@ -1,3 +1,5 @@
+import time
+
 from Environment import Environment
 
 class Simulation:
@@ -17,7 +19,13 @@ class Simulation:
     def save_json(self, filename):
         #Save state to JSON
         None
-    
+        
+    def auto_save(self, filename):
+        #Save state to JSON with automatically generated file path
+        saveName = "AUTO-SAVE-" + time.asctime().replace(':', '-').replace(' ', '-') + ".json"
+        savePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", saveName))
+        self.save_json(savePath)
+        
     def step(self):
         #Calculate all organism behaviors and act on them
         state = self.env.get_state()

@@ -8,9 +8,13 @@ from tkinter import scrolledtext
 from tkinter import filedialog
 from functools import partial
 import os
+import time
 
 #Import statements handling other parts of the project
 import GUI
+
+#Module Level Constant definitions
+_SIM_STEP_TIME = 100000000 #Time between step() calls in the simulation, in nanoseconds. (100,000,000ns = 1/10th of a second)
 
 def main():
     #GUI Main Window Construction
@@ -25,7 +29,10 @@ def main():
     #step() and step_gen() functions at reasonable/correct
     #frequency inside this loop
     while(True):
-        cellvolutionWindow.simCanvasUpdate()
+        curTime = time.perf_counter_ns()
+        if(curTime - cellvolutionWindow.lastStepTime > _SIM_STEP_TIME and cellvolutionWindow.paused == False):
+            cellvolutionWindow.attachedSimulation.step()
+            cellvolutionWindow.simCanvasUpdate()
         cellvolutionWindow.update()
 
 if __name__ == '__main__':

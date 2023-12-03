@@ -24,10 +24,6 @@ def main():
     #GUI Event loop and simulation game loop
     #This replaces the 'mainloop()' call in
     #regular TK GUI programs
-    
-    #TODO: add logic that calls the simulation's
-    #step() and step_gen() functions at reasonable/correct
-    #frequency inside this loop
     while(True):
         curTime = time.perf_counter_ns()
         if(curTime - cellvolutionWindow.lastStepTime > _SIM_STEP_TIME and cellvolutionWindow.paused == False):

@@ -55,6 +55,7 @@ class gameWindow(tk.Tk):
         self.tutMenu = tutorialFrame(self)
         self.newSimMenu = newSimFrame(self)
         self.simulationMenu = simulationFrame(self)
+        self.modificationMenu = modificationFrame(self)
         self.lastStepTime = time.perf_counter_ns()
         self.paused = True
 
@@ -97,6 +98,11 @@ class gameWindow(tk.Tk):
     def changeToSimulationMenu(self):
         self.clearWindow()
         self.simulationMenu.pack(fill = tk.BOTH, expand = True)
+
+    def changeToModificationMenu(self):
+        self.paused = True
+        self.clearWindow()
+        self.modificationMenu.pack(fill = tk.BOTH, expand = True)
 
     def attachSimulation(self, simulation):
         self.attachedSimulation = simulation
@@ -452,7 +458,7 @@ class simulationFrame(ttk.Frame):
         except:
             self.btn_save.config(text = "Save")
 
-        self.btn_modify = ttk.Button(master = self)
+        self.btn_modify = ttk.Button(master = self, command = partial(self.master.changeToModificationMenu))
         try:
             modifyIconFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "modify.png"))
             self.modifyIcon = ImageTk.PhotoImage(Image.open(modifyIconFilePath))
@@ -485,3 +491,17 @@ class simulationFrame(ttk.Frame):
         self.btn_save.grid(row = 1, column = 3, sticky = "nsew")
         self.btn_modify.grid(row = 1, column = 4, sticky = "nsew")
         self.btn_exit.grid(row = 1, column = 5, sticky = "nsew")
+
+class modificationFrame(ttk.Frame):
+    def __init__(self,master):
+        ttk.Frame.__init__(self, master)
+
+        self.btn_exit = ttk.Button(master = self, command = partial(self.master.changeToSimulationMenu))
+        try:
+            exitIconFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "exit.png"))
+            self.exitIcon = ImageTk.PhotoImage(Image.open(exitIconFilePath))
+            self.btn_exit.config(image = self.exitIcon)
+        except:
+            self.btn_exit.config(text = "Exit Modification")
+
+        self.btn_exit.pack()

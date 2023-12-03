@@ -1,7 +1,7 @@
 from Environment import Environment
 
 class Simulation:
-    def __init__(self, width, height):
+    def __init__(self, width, height, *params):
         self.create(width, height)
     
     def create(self, width, height):

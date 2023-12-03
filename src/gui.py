@@ -9,6 +9,7 @@ from tkinter import filedialog
 from functools import partial
 from PIL import Image, ImageTk
 import os
+import time
 
 import Simulation
 
@@ -46,6 +47,8 @@ class gameWindow(tk.Tk):
         self.tutMenu = tutorialFrame(self)
         self.newSimMenu = newSimFrame(self)
         self.simulationMenu = simulationFrame(self)
+        self.lastStepTime = time.perf_counter_ns()
+        self.paused = True
 
 
         try:
@@ -96,6 +99,16 @@ class gameWindow(tk.Tk):
         for org in self.attachedSimulation.env.get_state()["organisms"]:
             orgState = org.get_state()
             self.simulationMenu.simDisplayCanvas.create_rectangle((orgState["x"], orgState["y"])*2, outline = "", fill = _ORGANISM_COLOR)
+
+    def pause(self):
+        self.paused = True
+
+    def unpause(self):
+        self.paused = False
+
+    def advanceOneStep(self):
+        self.paused = True
+        self.attachedSimulation.step()
 
 class mainFrame(ttk.Frame):
     """mainFrame docstring"""
@@ -159,6 +172,7 @@ class newSimFrame(ttk.Frame):
         self.foodDensity = tk.IntVar(value = 10)
         self.numOrganisms = tk.IntVar(value = 1000)
         self.survivalFunction = tk.StringVar(value = "None")
+        self.generationLength = tk.IntVar(value = 500)
 
         #Make all them widgets
         self.widthSlider = ttk.Scale(
@@ -240,7 +254,7 @@ class newSimFrame(ttk.Frame):
         self.survivalFunctionLabel = ttk.Label(text = 'Survival Function', master = self)
 
         self.btn_return = ttk.Button(master = self, text="Return to Main Menu", command = partial(self.master.changeToMainMenu))
-        self.btn_begin = ttk.Button(master = self, text="Begin Simulation", command = partial(self.beginSimulation)) #TODO: pass values to attached simulation
+        self.btn_begin = ttk.Button(master = self, text="Begin Simulation", command = partial(self.beginSimulation))
 
         #Set up the geometry of all the widgets
         self.columnconfigure([0, 1, 2, 3], weight = 1, minsize = _MIN_WIN_WIDTH/4)
@@ -315,7 +329,7 @@ class newSimFrame(ttk.Frame):
     def beginSimulation(self):
         """Instantiates a simulation with the values present in the selections and attaches it to the object's master.
         Then changes the master frame to the simulation menu."""
-        sim = Simulation.Simulation(self.envWidth.get(), self.envHeight.get())
+        sim = Simulation.Simulation(self.envWidth.get(), self.envHeight.get(), self.foodDensity.get(), self.numOrganisms.get(), self.survivalFunction.get(), self.generationLength.get())
         self.master.attachSimulation(sim)
         self.master.simCanvasUpdate()
         self.master.changeToSimulationMenu()
@@ -334,7 +348,7 @@ class simulationFrame(ttk.Frame):
         self.canvasHorizScrollBar.config(command = self.simDisplayCanvas.xview)
         self.canvasVertiScrollBar.config(command = self.simDisplayCanvas.yview)
 
-        self.btn_play = ttk.Button(master = self)
+        self.btn_play = ttk.Button(master = self, command = partial(self.master.unpause))
         try:
             playIconFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "play.png"))
             self.playIcon = ImageTk.PhotoImage(Image.open(playIconFilePath))
@@ -342,7 +356,7 @@ class simulationFrame(ttk.Frame):
         except:
             self.btn_play.config(text = "Play")
 
-        self.btn_pause = ttk.Button(master = self)
+        self.btn_pause = ttk.Button(master = self, command = partial(self.master.pause))
         try:
             pauseIconFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "pause.png"))
             self.pauseIcon = ImageTk.PhotoImage(Image.open(pauseIconFilePath))
@@ -350,13 +364,13 @@ class simulationFrame(ttk.Frame):
         except:
             self.btn_pause.config(text = "Pause")
 
-        self.btn_advance_one = ttk.Button(master = self)
+        self.btn_advance_one = ttk.Button(master = self, command = partial(self.master.advanceOneStep))
         try:
             advance_oneIconFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "advance_one.png"))
             self.advance_oneIcon = ImageTk.PhotoImage(Image.open(advance_oneIconFilePath))
             self.btn_advance_one.config(image = self.advance_oneIcon)
         except:
-            self.btn_advance_one.config(text = "Advance One Generation")
+            self.btn_advance_one.config(text = "Advance One Step")
             
         self.btn_save = ttk.Button(master = self)
         try:

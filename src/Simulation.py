@@ -1,6 +1,8 @@
+import json
 import random
 import time
 import os.path
+
 from src.Organism import Organism
 from src.Environment import Environment
 
@@ -43,11 +45,45 @@ class Simulation:
 
     def load_json(self, filename):
         # Load state from JSON
-        None
+        save_file = open(filename, "r")
+        state = json.loads(save_file.read())
+        # Validate loaded state
+        for arg in ["width", "height", "env", "age", "gen", "population", "age_max", "genome_length", "mutation_rate", "survival_function"]:
+            if arg not in state:
+                save_file.close()
+                return False
+        if "organisms" not in state or "objects" not in state:
+            save_file.close()
+            return False
+        # Recreate saved state
+        self.env = Environment(state["width"], state["height"])
+        self.age = state["age"]
+        self.gen = state["gen"]
+        self.population = state["population"]
+        self.age_max = state["age_max"]
+        self.genome_length = state["genome_length"]
+        self.mutation = state["mutation_rate"]
+        self.set_survival_function(state["survival_function"])
+        save_file.close()
+        return True
 
     def save_json(self, filename):
         # Save state to JSON
-        None
+        state = {
+            "width": self.env.width,
+            "height": self.env.height,
+            "env": self.env.get_state(),
+            "age": self.age,
+            "gen": self.gen,
+            "population": self.population,
+            "age_max": self.age_max,
+            "genome_length": self.genome_length,
+            "mutation_rate": self.mutation,
+            "survival_function": self.survival_function_name
+        }
+        save_file = open(filename, "w")
+        save_file.write(json.dumps(state))
+        save_file.close()
 
     def auto_save(self, filename):
         # Save state to JSON with automatically generated file path
@@ -56,6 +92,7 @@ class Simulation:
         self.save_json(savePath)
 
     def set_survival_function(self, survival_function):
+        self.survival_function_name = survival_function
         self.survival_function = Simulation.SURVIVAL[survival_function if survival_function in Simulation.SURVIVAL else "None"]
 
     def step(self):

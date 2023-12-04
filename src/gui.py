@@ -81,7 +81,11 @@ class gameWindow(tk.Tk):
     def fileSave(self, *options):
         self.paused = True
         self.simFilePathSave = filedialog.asksaveasfilename(parent = self, filetypes=[("JSON Files", "*.json")], defaultextension = ".json")
-        self.attachedSimulation.save_json(self.simFilePathSave)
+        returnedValue = self.attachedSimulation.save_json(self.simFilePathSave)
+        if(returnedValue):
+            self.simulationMenu.saveWarningVar.set('')
+        else:
+            self.simulationMenu.saveWarningVar.set("!!!WARNING!!!\nThe last attempted save did not succeed!")
 
     def changeToMainMenu(self):
         self.clearWindow()
@@ -98,6 +102,7 @@ class gameWindow(tk.Tk):
     def changeToSimulationMenu(self):
         self.clearWindow()
         self.simulationMenu.pack(fill = tk.BOTH, expand = True)
+        self.paused = False
 
     def changeToModificationMenu(self):
         self.paused = True
@@ -108,6 +113,7 @@ class gameWindow(tk.Tk):
         self.attachedSimulation = simulation
 
     def simCanvasUpdate(self):
+        self.simulationMenu.simDisplayCanvas.delete("all")
         self.simulationMenu.simDisplayCanvas.config(scrollregion = (0, 0, self.attachedSimulation.env.width,self.attachedSimulation.env.height))
         for obj in self.attachedSimulation.env.get_state()["objects"]:
             if objState["object_type"] == 'food':
@@ -119,7 +125,10 @@ class gameWindow(tk.Tk):
             self.simulationMenu.simDisplayCanvas.create_rectangle((org["x"], org["y"])*2, outline = "", fill = _ORGANISM_COLOR)
 
     def simDataUpdate(self):
-        None
+        self.simulationMenu.popCountVar.set(str(self.attachedSimulation.population))
+        self.simulationMenu.stepCountVar.set(str(self.attachedSimulation.age))
+        self.simulationMenu.genCountVar.set(str(self.attachedSimulation.gen))
+        self.simulationMenu.genlenVar.set(str(self.newSimMenu.generationLength.get()))
     
     def pause(self):
         self.paused = True
@@ -130,6 +139,7 @@ class gameWindow(tk.Tk):
     def advanceOneStep(self):
         self.paused = True
         self.attachedSimulation.step()
+        self.simDataUpdate()
 
 class mainFrame(ttk.Frame):
     """mainFrame docstring"""
@@ -417,6 +427,7 @@ class simulationFrame(ttk.Frame):
     def __init__(self,master):
         ttk.Frame.__init__(self, master)
 
+        #Canvas frame set up, gridding done with other geometry managment later
         self.canvasFrame = ttk.Frame(master = self)
         self.canvasHorizScrollBar = tk.Scrollbar(master = self.canvasFrame, orient = 'horizontal')
         self.canvasVertiScrollBar = tk.Scrollbar(master = self.canvasFrame, orient = 'vertical')
@@ -426,13 +437,22 @@ class simulationFrame(ttk.Frame):
         self.canvasHorizScrollBar.config(command = self.simDisplayCanvas.xview)
         self.canvasVertiScrollBar.config(command = self.simDisplayCanvas.yview)
 
+        #Data frame set up, grididng done with other geo later.
         self.dataFrame = ttk.Frame(master = self)
-        #Data frame will have displays for:
-        # Current population
-        # Current step
-        # Current generation
-        # Generation length in steps
-        # 
+        self.popNameLabel = ttk.Label(text = "Living Organisms", master = self.dataFrame)
+        self.popCountVar = tk.StringVar(value = '', master = self.dataFrame)
+        self.popCountLabel = ttk.Label(textvariable = self.popCountVar, master = self.dataFrame)
+        self.stepNameLabel = ttk.Label(text = "Current Step", master = self.dataFrame)
+        self.stepCountVar = tk.StringVar(value = '', master = self.dataFrame)
+        self.stepCountLabel = ttk.Label(textvariable = self.stepCountVar, master = self.dataFrame)
+        self.genNameLabel = ttk.Label(text = "Current Generation", master = self.dataFrame)
+        self.genCountVar = tk.StringVar(value = '', master = self.dataFrame)
+        self.genCountLabel = ttk.Label(textvariable = self.genCountVar, master = self.dataFrame)
+        self.genlenNameLabel = ttk.Label(text = "Generation Length", master = self.dataFrame)
+        self.genlenVar = tk.StringVar(value = '', master = self.dataFrame)
+        self.genlenLabel = ttk.Label(textvariable = self.genlenVar, master = self.dataFrame)
+        self.saveWarningVar = tk.StringVar(value = '', master = self.dataFrame)
+        self.saveWarningLabel = ttk.Label(textvariable = self.saveWarningVar, master = self.dataFrame)
 
         self.btn_play = ttk.Button(master = self, command = partial(self.master.unpause))
         try:
@@ -493,6 +513,17 @@ class simulationFrame(ttk.Frame):
         self.canvasVertiScrollBar.pack(side = 'left', fill = 'y')
         self.simDisplayCanvas.pack(fill='both', expand = 1)
         self.canvasFrame.grid(row = 0, column = 0, columnspan = 6, sticky = "nsew")
+
+        self.popNameLabel.pack()
+        self.popCountLabel.pack()
+        self.stepNameLabel.pack()
+        self.stepCountLabel.pack()
+        self.genNameLabel.pack()
+        self.genCountLabel.pack()
+        self.genlenNameLabel.pack()
+        self.genlenLabel.pack()
+
+        self.saveWarningLabel.pack(side = 'bottom')
 
         self.dataFrame.grid(row = 0, column = 6, rowspan = 2, sticky = "nsew")
         

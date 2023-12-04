@@ -11,8 +11,8 @@ class Organism:
     STIMULI = [
         lambda organism: [-2, 0, 2, 0][organism.dir],
         lambda organism: [0, 2, 0, -2][organism.dir],
-        lambda organism: (organism.x / organism.env.width - 0.5) * 4,
-        lambda organism: (organism.y / organism.env.height - 0.5) * 4,
+        lambda organism: (organism.x / (organism.env.width - 1) - 0.5) * 4,
+        lambda organism: (organism.y / (organism.env.height - 1) - 0.5) * 4,
         lambda organism: (random.random() - 0.5) * 4
     ]
     ACTIONS = [

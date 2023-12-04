@@ -36,7 +36,7 @@ _SIM_BUTTON_DEFAULT_SIZE = 75
 _FOOD_COLOR = "#82d322"
 _ORGANISM_COLOR = "#7d7dff"
 _OBSTACLE_COLOR = "#595959"
-_SURV_FUNC_NAMES = ["None", "Has Eaten Food", "Temp Surv Func 1", "Temp Surv Func 3"]
+_SURV_FUNC_NAMES = ["None", "North quarter", "East quarter", "West quarter", "South quarter"]
 
 class gameWindow(tk.Tk):
     """A gameWindow is an extenstion of a tkinter root which initializes with the ttk frames needed
@@ -144,6 +144,7 @@ class gameWindow(tk.Tk):
         self.simDataUpdate()
 
     def sendModifications(self):
+        self.attachedSimulation.set_survival_function(self.newSimMenu.survivalFunction.get())
         self.changeToSimulationMenu()
 
 class mainFrame(ttk.Frame):
@@ -444,16 +445,16 @@ class simulationFrame(ttk.Frame):
 
         #Data frame set up, grididng done with other geo later.
         self.dataFrame = ttk.Frame(master = self)
-        self.popNameLabel = ttk.Label(text = "Living Organisms", master = self.dataFrame)
+        self.popNameLabel = ttk.Label(text = "Living Organisms:", master = self.dataFrame)
         self.popCountVar = tk.StringVar(value = '', master = self.dataFrame)
         self.popCountLabel = ttk.Label(textvariable = self.popCountVar, master = self.dataFrame)
-        self.stepNameLabel = ttk.Label(text = "Current Step", master = self.dataFrame)
+        self.stepNameLabel = ttk.Label(text = "Current Step:", master = self.dataFrame)
         self.stepCountVar = tk.StringVar(value = '', master = self.dataFrame)
         self.stepCountLabel = ttk.Label(textvariable = self.stepCountVar, master = self.dataFrame)
-        self.genNameLabel = ttk.Label(text = "Current Generation", master = self.dataFrame)
+        self.genNameLabel = ttk.Label(text = "Current Generation:", master = self.dataFrame)
         self.genCountVar = tk.StringVar(value = '', master = self.dataFrame)
         self.genCountLabel = ttk.Label(textvariable = self.genCountVar, master = self.dataFrame)
-        self.genlenNameLabel = ttk.Label(text = "Generation Length", master = self.dataFrame)
+        self.genlenNameLabel = ttk.Label(text = "Generation Length:", master = self.dataFrame)
         self.genlenVar = tk.StringVar(value = '', master = self.dataFrame)
         self.genlenLabel = ttk.Label(textvariable = self.genlenVar, master = self.dataFrame)
         self.saveWarningVar = tk.StringVar(value = '', master = self.dataFrame)
@@ -545,10 +546,8 @@ class modificationFrame(ttk.Frame):
         
         ttk.Frame.__init__(self, master)
 
-        self.survivalFunction = tk.StringVar(value = '', master = self)
         self.organismID = tk.IntVar(value = 0, master = self)
-        self.genome = tk.StringVar(value = '', master = self)
-
+        
         self.organismIDSelector = ttk.Entry(
             exportselection = 0,
             validate = 'all',
@@ -559,13 +558,14 @@ class modificationFrame(ttk.Frame):
         self.survivalFunctionSelector = ttk.Combobox(
             exportselection = 0,
             state = "readonly",
-            textvariable = self.survivalFunction,
+            textvariable = master.newSimMenu.survivalFunction,
             height = 5,
             values = _SURV_FUNC_NAMES,
             master = self)
 
-        self.survivalFunctionLabel = ttk.Label(text = 'Survival Function', master = self)
-        self.organismLabel = ttk.Label(text = 'View Organism Genome', master = self)
+        self.survivalFunctionLabel = ttk.Label(text = 'Change Survival Function', master = self)
+        self.organismLabel = ttk.Label(text = 'View Genome of Organism #:', master = self)
+        self.genomeDisplay = tk.Text(master = self, state = "disabled")
 
         self.btn_exit = ttk.Button(master = self, command = partial(self.master.sendModifications))
         self.btn_exit.config(text = "Exit Modification")
@@ -574,6 +574,7 @@ class modificationFrame(ttk.Frame):
         self.survivalFunctionSelector.pack()
         self.organismLabel.pack()
         self.organismIDSelector.pack()
+        self.genomeDisplay.pack()
         self.btn_exit.pack(side = 'bottom', fill = 'x')
 
     def validateOrganismID(self, P):
@@ -594,4 +595,11 @@ class modificationFrame(ttk.Frame):
             return False
         
     def displayGenome(self):
-        self.genome.set('test')
+        #try:
+        organism = self.master.attachedSimulation.env.get_organisms()[self.organismID.get()]
+        self.genomeDisplay.configure(state = 'normal')
+        self.genomeDisplay.insert('end', str(organism.get_state()["genome"]))
+        self.genomeDisplay.configure(state = 'disabled')
+            
+        #except:
+        #    self.genome.set('Error displaying Genome')

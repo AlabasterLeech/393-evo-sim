@@ -12,16 +12,12 @@ class Organism:
                   lambda organism, env: random.randrange(-2, 2)
               ] * 64
     ACTIONS = [
-    lambda organism: organism.x, organism.y = [
-        (organism.x, organism.y - 1),
-        (organism.x + 1, organism.y),
-        (organism.x, organism.y + 1),
-        (organism.x - 1, organism.y)][organism.dir],
-    lambda organism: organism.x, organism.y = [
-        (organism.x, organism.y + 1),
-        (organism.x - 1, organism.y),
-        (organism.x, organism.y - 1),
-        (organism.x + 1, organism.y)][organism.dir],
+    lambda organism: {
+        setattr(organism, 'x', [organism.x, organism.x + 1, organism.x, organism.x - 1][organism.dir]),
+        setattr(organism, 'y', [organism.y - 1, organism.y, organism.y + 1, organism.y][organism.dir])},
+    lambda organism: {
+        setattr(organism, 'x', [organism.x, organism.x - 1, organism.x, organism.x + 1][organism.dir]),
+        setattr(organism, 'y', [organism.y + 1, organism.y, organism.y - 1, organism.y][organism.dir])},
     lambda organism: setattr(organism, 'dir', (organism.dir - 1) % 4),
     lambda organism: setattr(organism, 'dir', (organism.dir + 1) % 4),
     lambda organism: None,

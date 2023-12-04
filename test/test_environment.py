@@ -12,6 +12,29 @@ class EnvironmentTest(unittest.TestCase):
         self.south = Organism({"x": 9, "y": 9, "dir": Organism._SOUTH})
         self.west = Organism({"x": 0, "y": 6, "dir": Organism._WEST})
 
+    def test_get_organisms(self):
+        organisms = [{"x": 0, "y": 0, "dir": Organism._NORTH}, {"x": 2, "y": 2, "dir": Organism._EAST}]
+        state = {"organisms": organisms,
+                 "objects": []}
+        self.env.set_state(state)
+        exp_organisms = [self.north, self.east]
+        msg = 'Different organisms!'
+        self.assertEqual(exp_organisms[0].get_location(), self.env.get_organisms()[0].get_location(), msg)
+        self.assertEqual(exp_organisms[1].get_location(), self.env.get_organisms()[1].get_location(), msg)
+        self.assertEqual(exp_organisms[0].dir, self.env.get_organisms()[0].dir, msg)
+        self.assertEqual(exp_organisms[1].dir, self.env.get_organisms()[1].dir, msg)
+
+    def test_get_objects(self):
+        food = Object(8, 7, 'food', 0.75)
+        obstacle = Object(5, 6, 'obstacle', 0.75)
+        state = {"organisms": [],
+                 "objects": [{"x": 8, "y": 7, "object_type": 'food', "density": 0.75},
+                             {"x": 5, "y": 6, "object_type": 'obstacle', "density": 0.75}]}
+        self.env.set_state(state)
+        msg = 'Not the same objects!'
+        self.assertEqual(food.get_location(), self.env.get_objects()[0].get_location(), msg)
+        self.assertEqual(obstacle.get_location(), self.env.get_objects()[1].get_location(), msg)
+
     # Tests if get_state returns the correct dictionary
     def test_get_state(self):
         test_dic = {"organisms": [],
@@ -96,74 +119,80 @@ class EnvironmentTest(unittest.TestCase):
         self.env.organisms = organisms
         true_msg = "Organism could not move in this direction!"
         false_msg = "Organism could move in this direction!"
-        self.assertEqual(True, self.env.check_move_forward(self.north), true_msg)
+        self.assertEqual(False, self.env.check_move_forward(self.north), false_msg)
         self.assertEqual(True, self.env.check_move_forward(self.east), true_msg)
-        self.assertEqual(True, self.env.check_move_forward(self.south), true_msg)
+        self.assertEqual(False, self.env.check_move_forward(self.south), false_msg)
         self.assertEqual(False, self.env.check_move_forward(self.west), false_msg)
+        norther = Organism({"x": 2, "y": 1, "dir": Organism._NORTH})
+        souther = Organism({"x": 0, "y": 1, "dir": Organism._SOUTH})
+        self.assertEqual(True, self.env.check_move_forward(norther), true_msg)
+        self.assertEqual(True, self.env.check_move_forward(souther), true_msg)
 
     def test_check_move_backward(self):
         organisms = [self.north, self.east, self.south, self.west]
         self.env.organisms = organisms
         true_msg = "Organism could not move in this direction!"
         false_msg = "Organism could move in this direction!"
-        self.assertEqual(False, self.env.check_move_backward(self.north), false_msg)
+        self.assertEqual(True, self.env.check_move_backward(self.north), true_msg)
         self.assertEqual(True, self.env.check_move_backward(self.east), true_msg)
-        self.assertEqual(False, self.env.check_move_backward(self.south), false_msg)
+        self.assertEqual(True, self.env.check_move_backward(self.south), true_msg)
         self.assertEqual(True, self.env.check_move_backward(self.west), true_msg)
-        norther = Organism({"x": 4, "y": 4, "dir": Organism._NORTH})
-        souther = Organism({"x": 0, "y": 8, "dir": Organism._SOUTH})
-        self.assertEqual(True, self.env.check_move_backward(norther), true_msg)
-        self.assertEqual(True, self.env.check_move_backward(souther), true_msg)
+        norther = Organism({"x": 2, "y": 1, "dir": Organism._NORTH})
+        self.assertEqual(False, self.env.check_move_backward(norther), false_msg)
 
-    def test_check_consume(self):
+    def test_check_consume_false(self):
         organisms = [self.north]
         food = [Object(0, 1, 'food', 0.75)]
         self.env.organisms = organisms
         self.env.objects = food
-        true_msg = "Organism could not consume in this direction!"
         false_msg = "Organism could consume in this direction!"
-        self.assertEqual(True, self.env.check_consume(self.north), true_msg)
+        self.assertEqual(False, self.env.check_consume(self.north), false_msg)
         self.assertEqual(False, self.env.check_consume(self.east), false_msg)
         self.assertEqual(False, self.env.check_consume(self.south), false_msg)
         self.assertEqual(False, self.env.check_consume(self.west), false_msg)
 
     def test_check_consume_true(self):
+        north = Organism({"x": 8, "y": 8, "dir": Organism._NORTH})
         south = Organism({"x": 5, "y": 5, "dir": Organism._SOUTH})
         east = Organism({"x": 5, "y": 5, "dir": Organism._EAST})
         west = Organism({"x": 5, "y": 5, "dir": Organism._WEST})
-        sfood = Object(5, 4, 'food', 0.75)
+        nfood = Object(8, 7, 'food', 0.75)
+        sfood = Object(5, 6, 'food', 0.75)
         efood = Object(6, 5, 'food', 0.75)
         wfood = Object(4, 5, 'food', 0.75)
-        organs = [south, east, west]
-        foods = [sfood, efood, wfood]
+        organs = [north, south, east, west]
+        foods = [nfood, sfood, efood, wfood]
         self.env.organisms = organs
         self.env.objects = foods
         true_msg = "Organism could not consume in this direction!"
+        self.assertEqual(True, self.env.check_consume(north), true_msg)
         self.assertEqual(True, self.env.check_consume(south), true_msg)
         self.assertEqual(True, self.env.check_consume(east), true_msg)
         self.assertEqual(True, self.env.check_consume(west), true_msg)
 
-    def test_check_kill(self):
+    def test_check_kill_false(self):
         norther = Organism({"x": 0, "y": 1, "dir": Organism._NORTH})
         organisms = [self.north, norther]
         self.env.organisms = organisms
-        true_msg = "Organism could not kill in this direction!"
         false_msg = "Organism could kill in this direction!"
-        self.assertEqual(True, self.env.check_kill(self.north), true_msg)
+        self.assertEqual(False, self.env.check_kill(self.north), false_msg)
         self.assertEqual(False, self.env.check_kill(self.east), false_msg)
         self.assertEqual(False, self.env.check_kill(self.south), false_msg)
         self.assertEqual(False, self.env.check_kill(self.west), false_msg)
 
     def test_check_kill_true(self):
+        north = Organism({"x": 8, "y": 8, "dir": Organism._NORTH})
         south = Organism({"x": 5, "y": 5, "dir": Organism._SOUTH})
         east = Organism({"x": 5, "y": 5, "dir": Organism._EAST})
         west = Organism({"x": 5, "y": 5, "dir": Organism._WEST})
-        souther = Organism({"x": 5, "y": 4, "dir": Organism._SOUTH})
+        norther = Organism({"x": 8, "y": 7, "dir": Organism._NORTH})
+        souther = Organism({"x": 5, "y": 6, "dir": Organism._SOUTH})
         easter = Organism({"x": 6, "y": 5, "dir": Organism._EAST})
         wester = Organism({"x": 4, "y": 5, "dir": Organism._WEST})
-        organs = [south, east, west, souther, easter, wester]
+        organs = [north, south, east, west, norther, souther, easter, wester]
         self.env.organisms = organs
         true_msg = "Organism could not kill in this direction!"
+        self.assertEqual(True, self.env.check_kill(north), true_msg)
         self.assertEqual(True, self.env.check_kill(south), true_msg)
         self.assertEqual(True, self.env.check_kill(east), true_msg)
         self.assertEqual(True, self.env.check_kill(west), true_msg)

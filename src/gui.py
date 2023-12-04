@@ -78,6 +78,7 @@ class gameWindow(tk.Tk):
     def fileLoad(self, *options):
         self.simFilePathLoad = filedialog.askopenfilename(parent = self, filetypes=[("JSON Files", "*.json")])
         self.attachedSimulation.save_json(self.simFilePathLoad)
+        self.changeToSimulationMenu()
 
     def fileSave(self, *options):
         self.paused = True

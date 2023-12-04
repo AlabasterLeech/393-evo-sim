@@ -45,7 +45,7 @@ class Organism:
             "x": self.x,
             "y": self.y,
             "dir": self.dir,
-            "genome": self.genome
+            "genome": [[gene[0], gene[1], gene[2]] for gene in self.genome]
         }
 
     def set_state(self, state):

@@ -36,6 +36,7 @@ _SIM_BUTTON_DEFAULT_SIZE = 75
 _FOOD_COLOR = "#82d322"
 _ORGANISM_COLOR = "#7d7dff"
 _OBSTACLE_COLOR = "#595959"
+_SURV_FUNC_NAMES = ["None", "North quarter", "East quarter", "West quarter", "South quarter"]
 
 class gameWindow(tk.Tk):
     """A gameWindow is an extenstion of a tkinter root which initializes with the ttk frames needed
@@ -81,7 +82,11 @@ class gameWindow(tk.Tk):
     def fileSave(self, *options):
         self.paused = True
         self.simFilePathSave = filedialog.asksaveasfilename(parent = self, filetypes=[("JSON Files", "*.json")], defaultextension = ".json")
-        self.attachedSimulation.save_json(self.simFilePathSave)
+        returnedValue = self.attachedSimulation.save_json(self.simFilePathSave)
+        if(returnedValue):
+            self.simulationMenu.saveWarningVar.set('')
+        else:
+            self.simulationMenu.saveWarningVar.set("!!!WARNING!!!\nThe last attempted save did not succeed!")
 
     def changeToMainMenu(self):
         self.clearWindow()
@@ -98,16 +103,19 @@ class gameWindow(tk.Tk):
     def changeToSimulationMenu(self):
         self.clearWindow()
         self.simulationMenu.pack(fill = tk.BOTH, expand = True)
+        self.paused = False
 
     def changeToModificationMenu(self):
         self.paused = True
         self.clearWindow()
+        self.modificationMenu.curPop = self.attachedSimulation.population
         self.modificationMenu.pack(fill = tk.BOTH, expand = True)
 
     def attachSimulation(self, simulation):
         self.attachedSimulation = simulation
 
     def simCanvasUpdate(self):
+        self.simulationMenu.simDisplayCanvas.delete("all")
         self.simulationMenu.simDisplayCanvas.config(scrollregion = (0, 0, self.attachedSimulation.env.width,self.attachedSimulation.env.height))
         for obj in self.attachedSimulation.env.get_state()["objects"]:
             if objState["object_type"] == 'food':
@@ -119,7 +127,10 @@ class gameWindow(tk.Tk):
             self.simulationMenu.simDisplayCanvas.create_rectangle((org["x"], org["y"])*2, outline = "", fill = _ORGANISM_COLOR)
 
     def simDataUpdate(self):
-        None
+        self.simulationMenu.popCountVar.set(str(self.attachedSimulation.population))
+        self.simulationMenu.stepCountVar.set(str(self.attachedSimulation.age))
+        self.simulationMenu.genCountVar.set(str(self.attachedSimulation.gen))
+        self.simulationMenu.genlenVar.set(str(self.newSimMenu.generationLength.get()))
     
     def pause(self):
         self.paused = True
@@ -130,6 +141,11 @@ class gameWindow(tk.Tk):
     def advanceOneStep(self):
         self.paused = True
         self.attachedSimulation.step()
+        self.simDataUpdate()
+
+    def sendModifications(self):
+        self.attachedSimulation.set_survival_function(self.newSimMenu.survivalFunction.get())
+        self.changeToSimulationMenu()
 
 class mainFrame(ttk.Frame):
     """mainFrame docstring"""
@@ -286,7 +302,7 @@ class newSimFrame(ttk.Frame):
             state = "readonly",
             textvariable = self.survivalFunction,
             height = 5,
-            values = ["None", "Has Eaten Food", "Temp Surv Func 1", "Temp Surv Func 3"],
+            values = _SURV_FUNC_NAMES,
             master = self)
 
         self.survivalFunctionLabel = ttk.Label(text = 'Survival Function', master = self)
@@ -417,6 +433,7 @@ class simulationFrame(ttk.Frame):
     def __init__(self,master):
         ttk.Frame.__init__(self, master)
 
+        #Canvas frame set up, gridding done with other geometry managment later
         self.canvasFrame = ttk.Frame(master = self)
         self.canvasHorizScrollBar = tk.Scrollbar(master = self.canvasFrame, orient = 'horizontal')
         self.canvasVertiScrollBar = tk.Scrollbar(master = self.canvasFrame, orient = 'vertical')
@@ -426,13 +443,22 @@ class simulationFrame(ttk.Frame):
         self.canvasHorizScrollBar.config(command = self.simDisplayCanvas.xview)
         self.canvasVertiScrollBar.config(command = self.simDisplayCanvas.yview)
 
+        #Data frame set up, grididng done with other geo later.
         self.dataFrame = ttk.Frame(master = self)
-        #Data frame will have displays for:
-        # Current population
-        # Current step
-        # Current generation
-        # Generation length in steps
-        # 
+        self.popNameLabel = ttk.Label(text = "Living Organisms:", master = self.dataFrame)
+        self.popCountVar = tk.StringVar(value = '', master = self.dataFrame)
+        self.popCountLabel = ttk.Label(textvariable = self.popCountVar, master = self.dataFrame)
+        self.stepNameLabel = ttk.Label(text = "Current Step:", master = self.dataFrame)
+        self.stepCountVar = tk.StringVar(value = '', master = self.dataFrame)
+        self.stepCountLabel = ttk.Label(textvariable = self.stepCountVar, master = self.dataFrame)
+        self.genNameLabel = ttk.Label(text = "Current Generation:", master = self.dataFrame)
+        self.genCountVar = tk.StringVar(value = '', master = self.dataFrame)
+        self.genCountLabel = ttk.Label(textvariable = self.genCountVar, master = self.dataFrame)
+        self.genlenNameLabel = ttk.Label(text = "Generation Length:", master = self.dataFrame)
+        self.genlenVar = tk.StringVar(value = '', master = self.dataFrame)
+        self.genlenLabel = ttk.Label(textvariable = self.genlenVar, master = self.dataFrame)
+        self.saveWarningVar = tk.StringVar(value = '', master = self.dataFrame)
+        self.saveWarningLabel = ttk.Label(textvariable = self.saveWarningVar, master = self.dataFrame)
 
         self.btn_play = ttk.Button(master = self, command = partial(self.master.unpause))
         try:
@@ -494,6 +520,17 @@ class simulationFrame(ttk.Frame):
         self.simDisplayCanvas.pack(fill='both', expand = 1)
         self.canvasFrame.grid(row = 0, column = 0, columnspan = 6, sticky = "nsew")
 
+        self.popNameLabel.pack()
+        self.popCountLabel.pack()
+        self.stepNameLabel.pack()
+        self.stepCountLabel.pack()
+        self.genNameLabel.pack()
+        self.genCountLabel.pack()
+        self.genlenNameLabel.pack()
+        self.genlenLabel.pack()
+
+        self.saveWarningLabel.pack(side = 'bottom')
+
         self.dataFrame.grid(row = 0, column = 6, rowspan = 2, sticky = "nsew")
         
         self.btn_play.grid(row = 1, column = 0, sticky = "nsew")
@@ -505,14 +542,64 @@ class simulationFrame(ttk.Frame):
 
 class modificationFrame(ttk.Frame):
     def __init__(self,master):
+        self.curPop = 0
+        
         ttk.Frame.__init__(self, master)
 
-        self.btn_exit = ttk.Button(master = self, command = partial(self.master.changeToSimulationMenu))
-        try:
-            exitIconFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "exit.png"))
-            self.exitIcon = ImageTk.PhotoImage(Image.open(exitIconFilePath))
-            self.btn_exit.config(image = self.exitIcon)
-        except:
-            self.btn_exit.config(text = "Exit Modification")
+        self.organismID = tk.IntVar(value = 0, master = self)
+        
+        self.organismIDSelector = ttk.Entry(
+            exportselection = 0,
+            validate = 'all',
+            validatecommand = (self.register(self.validateOrganismID), '%P'),
+            textvariable = self.organismID,
+            master = self)
 
-        self.btn_exit.pack()
+        self.survivalFunctionSelector = ttk.Combobox(
+            exportselection = 0,
+            state = "readonly",
+            textvariable = master.newSimMenu.survivalFunction,
+            height = 5,
+            values = _SURV_FUNC_NAMES,
+            master = self)
+
+        self.survivalFunctionLabel = ttk.Label(text = 'Change Survival Function', master = self)
+        self.organismLabel = ttk.Label(text = 'View Genome of Organism #:', master = self)
+        self.genomeDisplay = tk.Text(master = self, state = "disabled")
+
+        self.btn_exit = ttk.Button(master = self, command = partial(self.master.sendModifications))
+        self.btn_exit.config(text = "Exit Modification")
+
+        self.survivalFunctionLabel.pack()
+        self.survivalFunctionSelector.pack()
+        self.organismLabel.pack()
+        self.organismIDSelector.pack()
+        self.genomeDisplay.pack()
+        self.btn_exit.pack(side = 'bottom', fill = 'x')
+
+    def validateOrganismID(self, P):
+        """Validates that the value of the num organisms widget is an integer and inside the bounds set by the constants.
+        Called by the widget's internal validation functionality."""
+        if str.isdigit(P) and int(P) >= 0 and int(P) < self.curPop:
+            self.organismID.set(int(P))
+            self.displayGenome()
+            return True
+        if str.isdigit(P) and int(P) < 0:
+            self.organismID.set(0)
+            return False
+        if str.isdigit(P) and int(P) >= self.curPop:
+            self.organismID.set(self.curPop - 1)
+            return False
+        else:
+            self.organismID.set(0)
+            return False
+        
+    def displayGenome(self):
+        #try:
+        organism = self.master.attachedSimulation.env.get_organisms()[self.organismID.get()]
+        self.genomeDisplay.configure(state = 'normal')
+        self.genomeDisplay.insert('end', str(organism.get_state()["genome"]))
+        self.genomeDisplay.configure(state = 'disabled')
+            
+        #except:
+        #    self.genome.set('Error displaying Genome')

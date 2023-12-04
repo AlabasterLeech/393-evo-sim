@@ -36,6 +36,7 @@ _SIM_BUTTON_DEFAULT_SIZE = 75
 _FOOD_COLOR = "#82d322"
 _ORGANISM_COLOR = "#7d7dff"
 _OBSTACLE_COLOR = "#595959"
+_SURV_FUNC_NAMES = ["None", "Has Eaten Food", "Temp Surv Func 1", "Temp Surv Func 3"]
 
 class gameWindow(tk.Tk):
     """A gameWindow is an extenstion of a tkinter root which initializes with the ttk frames needed
@@ -107,6 +108,7 @@ class gameWindow(tk.Tk):
     def changeToModificationMenu(self):
         self.paused = True
         self.clearWindow()
+        self.modificationMenu.curPop = self.attachedSimulation.population
         self.modificationMenu.pack(fill = tk.BOTH, expand = True)
 
     def attachSimulation(self, simulation):
@@ -140,6 +142,9 @@ class gameWindow(tk.Tk):
         self.paused = True
         self.attachedSimulation.step()
         self.simDataUpdate()
+
+    def sendModifications(self):
+        self.changeToSimulationMenu()
 
 class mainFrame(ttk.Frame):
     """mainFrame docstring"""
@@ -296,7 +301,7 @@ class newSimFrame(ttk.Frame):
             state = "readonly",
             textvariable = self.survivalFunction,
             height = 5,
-            values = ["None", "Has Eaten Food", "Temp Surv Func 1", "Temp Surv Func 3"],
+            values = _SURV_FUNC_NAMES,
             master = self)
 
         self.survivalFunctionLabel = ttk.Label(text = 'Survival Function', master = self)
@@ -536,14 +541,57 @@ class simulationFrame(ttk.Frame):
 
 class modificationFrame(ttk.Frame):
     def __init__(self,master):
+        self.curPop = 0
+        
         ttk.Frame.__init__(self, master)
 
-        self.btn_exit = ttk.Button(master = self, command = partial(self.master.changeToSimulationMenu))
-        try:
-            exitIconFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "exit.png"))
-            self.exitIcon = ImageTk.PhotoImage(Image.open(exitIconFilePath))
-            self.btn_exit.config(image = self.exitIcon)
-        except:
-            self.btn_exit.config(text = "Exit Modification")
+        self.survivalFunction = tk.StringVar(value = '', master = self)
+        self.organismID = tk.IntVar(value = 0, master = self)
+        self.genome = tk.StringVar(value = '', master = self)
 
-        self.btn_exit.pack()
+        self.organismIDSelector = ttk.Entry(
+            exportselection = 0,
+            validate = 'all',
+            validatecommand = (self.register(self.validateOrganismID), '%P'),
+            textvariable = self.organismID,
+            master = self)
+
+        self.survivalFunctionSelector = ttk.Combobox(
+            exportselection = 0,
+            state = "readonly",
+            textvariable = self.survivalFunction,
+            height = 5,
+            values = _SURV_FUNC_NAMES,
+            master = self)
+
+        self.survivalFunctionLabel = ttk.Label(text = 'Survival Function', master = self)
+        self.organismLabel = ttk.Label(text = 'View Organism Genome', master = self)
+
+        self.btn_exit = ttk.Button(master = self, command = partial(self.master.sendModifications))
+        self.btn_exit.config(text = "Exit Modification")
+
+        self.survivalFunctionLabel.pack()
+        self.survivalFunctionSelector.pack()
+        self.organismLabel.pack()
+        self.organismIDSelector.pack()
+        self.btn_exit.pack(side = 'bottom', fill = 'x')
+
+    def validateOrganismID(self, P):
+        """Validates that the value of the num organisms widget is an integer and inside the bounds set by the constants.
+        Called by the widget's internal validation functionality."""
+        if str.isdigit(P) and int(P) >= 0 and int(P) < self.curPop:
+            self.organismID.set(int(P))
+            self.displayGenome()
+            return True
+        if str.isdigit(P) and int(P) < 0:
+            self.organismID.set(0)
+            return False
+        if str.isdigit(P) and int(P) >= self.curPop:
+            self.organismID.set(self.curPop - 1)
+            return False
+        else:
+            self.organismID.set(0)
+            return False
+        
+    def displayGenome(self):
+        self.genome.set('test')

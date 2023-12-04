@@ -32,6 +32,14 @@ class SimulationTest(unittest.TestCase):
         actual_location = organisms[0].get_location()
         self.assertEqual((4, 1), actual_location, 'Not the same location!')
 
+    def test_load_bad_json(self):
+        empty_orgs = os.path.normpath(
+            os.path.join(os.path.abspath(__file__), "..", "..", "assets", 'test_load_empty_orgs.json'))
+        empty_objs = os.path.normpath(
+            os.path.join(os.path.abspath(__file__), "..", "..", "assets", 'test_load_empty_objs.json'))
+        self.assertEqual(False, self.sim.load_json(empty_orgs))
+        self.assertEqual(False, self.sim.load_json(empty_objs))
+
     def test_save_json(self):
         filename = "test_save_json.json"
         filepath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", filename))

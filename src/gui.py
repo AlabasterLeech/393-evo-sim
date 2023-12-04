@@ -77,8 +77,11 @@ class gameWindow(tk.Tk):
     will actually parse from the JSON file and initialize the simulation state."""
     def fileLoad(self, *options):
         self.simFilePathLoad = filedialog.askopenfilename(parent = self, filetypes=[("JSON Files", "*.json")])
-        self.attachedSimulation.save_json(self.simFilePathLoad)
-        self.changeToSimulationMenu()
+        returnValue = self.attachedSimulation.save_json(self.simFilePathLoad)
+        if(returnValue):
+            self.changeToSimulationMenu()
+        else:
+            self.changeToMainMenu()
 
     def fileSave(self, *options):
         self.paused = True

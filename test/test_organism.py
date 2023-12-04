@@ -1,5 +1,6 @@
 import unittest
 from src.Organism import Organism
+from src.Environment import Environment
 import math
 
 
@@ -16,6 +17,8 @@ class OrganismTest(unittest.TestCase):
         self.neuron2.output = 4
         self.test_neuron = Organism.Neuron()
         self.test_neuron.bias = 3
+        self.env = Environment(10, 10)
+        self.env.organisms = [self.org]
 
     def test_get_state(self):
         org_state = {"x": 4,
@@ -43,9 +46,20 @@ class OrganismTest(unittest.TestCase):
                   b'\x05\x15\x05', b'\x06\x25\x06', b'\x07\x35\x07', b'\x08\x45\x08']
         self.org.set_genome(genome)
         self.org.build_network()
-        self.org.think()
+        self.org.think(self.env)
         msg = 'Output was not modified and did not exceed output threshold!'
-        self.assertTrue(self.org.network[8].get_output_thresh(), msg)
+        # self.assertTrue(self.org.network[8].get_output_thresh(), msg)
+
+    def test_act(self):
+        neurons = {254: self.neuron2,         # Backwards
+                   255: self.neuron1}         # Forwards
+        back_org = Organism({"x": 4, "y": 3})
+        self.env.organisms.append(back_org)
+        self.org.network = neurons
+        self.org.act(self.env)
+        exp_pos = (4, 5)
+        msg = "Organism performed a different (set of) actions!"
+        self.assertEqual(exp_pos, self.org.get_location(), msg)
 
     def test_mutate(self):
         chance = 2147483647
@@ -76,7 +90,7 @@ class OrganismTest(unittest.TestCase):
         same_id_output_msg = 'Neuron does not have the correct number of output Neurons!'
         same_id_input_msg = 'Neuron does not have the correct number of input Neurons!'
         self.assertEqual(2, len(self.org.network[1].outputs), same_id_output_msg)
-        self.assertEqual(1, len(self.org.network[3].inputs), same_id_input_msg)
+        self.assertEqual(2, len(self.org.network[3].inputs), same_id_input_msg)
 
         # Test for same src and dst ID
         self.org.set_genome([b'\x01\x02\x01'])

@@ -15,6 +15,7 @@ import GUI
 
 #Module Level Constant definitions
 _SIM_STEP_TIME = 100000000 #Time between step() calls in the simulation, in nanoseconds. (100,000,000ns = 1/10th of a second)
+_CANVAS_UPDATE_FREQ = 10 #How many step() calls between each canvas update. Canvas will also update on the first step of any generation
 
 def main():
     #GUI Main Window Construction
@@ -28,6 +29,7 @@ def main():
         curTime = time.perf_counter_ns()
         if(curTime - cellvolutionWindow.lastStepTime > _SIM_STEP_TIME and cellvolutionWindow.paused == False):
             cellvolutionWindow.attachedSimulation.step()
+        if(cellvolutionWindow.attachedSimulation.age == 1 or cellvolutionWindow.attachedSimulation.age % _CANVAS_UPDATE_FREQ):
             cellvolutionWindow.simCanvasUpdate()
             cellvolutionWindow.simDataUpdate()
         cellvolutionWindow.update()

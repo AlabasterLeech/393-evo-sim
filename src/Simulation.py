@@ -26,7 +26,7 @@ class Simulation:
                 genome.append(bytes([random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)]))
             patient.set_genome(genome)
             patient.build_network()
-            while not self.env.organisms.space_open(patient.x, patient.y):
+            while not self.env.space_open(patient.x, patient.y):
                 patient.x, patient.y = random.randint(0, self.env.width - 1), random.randint(0, self.env.height - 1)
             self.env.organisms.append(patient)
     

@@ -24,16 +24,21 @@ def main():
     #GUI Event loop and simulation game loop
     #This replaces the 'mainloop()' call in
     #regular TK GUI programs
-    
-    #TODO: add logic that calls the simulation's
-    #step() and step_gen() functions at reasonable/correct
-    #frequency inside this loop
     while(True):
         curTime = time.perf_counter_ns()
         if(curTime - cellvolutionWindow.lastStepTime > _SIM_STEP_TIME and cellvolutionWindow.paused == False):
             cellvolutionWindow.attachedSimulation.step()
             cellvolutionWindow.simCanvasUpdate()
         cellvolutionWindow.update()
+
+        #This try/except block checks if the window still exists, if it doesn't it breaks the loop
+        #monitoring the events for that window, which will terminate the program
+        #Thus if the window is closed by some OS function (like the X button in the corner)
+        #the program properly terminates.
+        try:
+            cellvolutionWindow.state()
+        except:
+            break
 
 if __name__ == '__main__':
     main()

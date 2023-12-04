@@ -19,12 +19,19 @@ _MIN_WIN_WIDTH = 640
 _MIN_WIN_HEIGHT = 480
 _MAX_ENV_WIDTH = 1000
 _MIN_ENV_WIDTH = 10
+_DEF_ENV_WIDTH = 500
 _MAX_ENV_HEIGHT = 1000
 _MIN_ENV_HEIGHT = 10
+_DEF_ENV_HEIGHT = 500
 _MIN_FOOD_DENSITY = 5
 _MAX_FOOD_DENSITY = 25
+_DEF_FOOD_DENSITY = 10
 _MIN_NUM_ORGANISMS = 100
 _MAX_NUM_ORGANISMS = 10000
+_DEF_NUM_ORGANISMS = 1000
+_MIN_GEN_LENGTH = 10
+_MAX_GEN_LENGTH = 1000
+_DEF_GEN_LENGTH = 500
 _SIM_BUTTON_DEFAULT_SIZE = 75
 _FOOD_COLOR = "#82d322"
 _ORGANISM_COLOR = "#7d7dff"
@@ -42,11 +49,13 @@ class gameWindow(tk.Tk):
         self.title(_WINDOW_TITLE)
         self.minsize(_MIN_WIN_WIDTH,_MIN_WIN_HEIGHT)
         self.attachedSimulation = Simulation.Simulation(0,0)
-        self.simFilePath = None
+        self.simFilePathLoad = None
+        self.simFilePathSave = None
         self.mainMenu = mainFrame(self)
         self.tutMenu = tutorialFrame(self)
         self.newSimMenu = newSimFrame(self)
         self.simulationMenu = simulationFrame(self)
+        self.modificationMenu = modificationFrame(self)
         self.lastStepTime = time.perf_counter_ns()
         self.paused = True
 
@@ -65,8 +74,14 @@ class gameWindow(tk.Tk):
 
     """Uses a tkinter filedialog to get the path to a JSON file the user would like to load, which can then be passed to the function which
     will actually parse from the JSON file and initialize the simulation state."""
-    def getFilePath(self, *options):
-        self.simFilePath = filedialog.askopenfilename(parent = self, filetypes=[("JSON Files", "*.json")])
+    def fileLoad(self, *options):
+        self.simFilePathLoad = filedialog.askopenfilename(parent = self, filetypes=[("JSON Files", "*.json")])
+        self.attachedSimulation.save_json(self.simFilePathLoad)
+
+    def fileSave(self, *options):
+        self.paused = True
+        self.simFilePathSave = filedialog.asksaveasfilename(parent = self, filetypes=[("JSON Files", "*.json")], defaultextension = ".json")
+        self.attachedSimulation.save_json(self.simFilePathSave)
 
     def changeToMainMenu(self):
         self.clearWindow()
@@ -83,6 +98,11 @@ class gameWindow(tk.Tk):
     def changeToSimulationMenu(self):
         self.clearWindow()
         self.simulationMenu.pack(fill = tk.BOTH, expand = True)
+
+    def changeToModificationMenu(self):
+        self.paused = True
+        self.clearWindow()
+        self.modificationMenu.pack(fill = tk.BOTH, expand = True)
 
     def attachSimulation(self, simulation):
         self.attachedSimulation = simulation
@@ -121,7 +141,7 @@ class mainFrame(ttk.Frame):
         self.lbl_name = ttk.Label(master = self)
         self.btn_newSim = ttk.Button(master = self, text="New Simulation", command = partial(master.changeToNewSimMenu))
         self.btn_loadSim = ttk.Button(master = self, text="Load Simulation")
-        self.btn_loadSim.bind("<Button-1>", master.getFilePath)
+        self.btn_loadSim.bind("<Button-1>", master.fileLoad)
         self.btn_tutorial = ttk.Button(master = self, text="Tutorial", command = partial(master.changeToTutorialMenu))
 
         try:
@@ -167,12 +187,12 @@ class newSimFrame(ttk.Frame):
         #Varibles which hold the various settings the user is modifying,
         #Use of tk control variables allows multiple input methods
         #to control a single value easily and synchronously
-        self.envWidth = tk.IntVar(value = 500)
-        self.envHeight = tk.IntVar(value = 500)
-        self.foodDensity = tk.IntVar(value = 10)
-        self.numOrganisms = tk.IntVar(value = 1000)
+        self.envWidth = tk.IntVar(value = _DEF_ENV_WIDTH)
+        self.envHeight = tk.IntVar(value = _DEF_ENV_HEIGHT)
+        self.foodDensity = tk.IntVar(value = _DEF_FOOD_DENSITY)
+        self.numOrganisms = tk.IntVar(value = _DEF_NUM_ORGANISMS)
         self.survivalFunction = tk.StringVar(value = "None")
-        self.generationLength = tk.IntVar(value = 500)
+        self.generationLength = tk.IntVar(value = _DEF_GEN_LENGTH)
 
         #Make all them widgets
         self.widthSlider = ttk.Scale(
@@ -185,12 +205,29 @@ class newSimFrame(ttk.Frame):
         
         self.widthEntry = ttk.Entry(
             exportselection = 0,
-            validate = 'all',
+            validate = 'focus',
             validatecommand = (self.register(self.validateWidth), '%P'),
             textvariable = self.envWidth,
             master = self)
         
         self.widthLabel = ttk.Label(text = 'Environment Width', master = self)
+
+        self.genLengthSlider = ttk.Scale(
+            orient = tk.HORIZONTAL,
+            from_=_MIN_GEN_LENGTH,
+            to=_MAX_GEN_LENGTH,
+            variable = self.generationLength,
+            command = lambda s:self.generationLength.set('%d' % float(s)),
+            master = self)
+        
+        self.genLengthEntry = ttk.Entry(
+            exportselection = 0,
+            validate = 'focus',
+            validatecommand = (self.register(self.validateGenerationLength), '%P'),
+            textvariable = self.generationLength,
+            master = self)
+        
+        self.genLengthLabel = ttk.Label(text = 'Generation Length', master = self)
 
         self.heightSlider = ttk.Scale(
             orient = tk.HORIZONTAL,
@@ -202,7 +239,7 @@ class newSimFrame(ttk.Frame):
 
         self.heightEntry = ttk.Entry(
             exportselection = 0,
-            validate = 'all',
+            validate = 'focus',
             validatecommand = (self.register(self.validateHeight), '%P'),
             textvariable = self.envHeight,
             master = self)
@@ -219,7 +256,7 @@ class newSimFrame(ttk.Frame):
         
         self.foodDensityEntry = ttk.Entry(
             exportselection = 0,
-            validate = 'all',
+            validate = 'focus',
             validatecommand = (self.register(self.validateFoodDensity), '%P'),
             textvariable = self.foodDensity,
             master = self)
@@ -236,7 +273,7 @@ class newSimFrame(ttk.Frame):
         
         self.numOrganismsEntry = ttk.Entry(
             exportselection = 0,
-            validate = 'all',
+            validate = 'focus',
             validatecommand = (self.register(self.validateNumOrganisms), '%P'),
             textvariable = self.numOrganisms,
             master = self)
@@ -258,10 +295,14 @@ class newSimFrame(ttk.Frame):
 
         #Set up the geometry of all the widgets
         self.columnconfigure([0, 1, 2, 3], weight = 1, minsize = _MIN_WIN_WIDTH/4)
-        self.rowconfigure([0, 1, 2, 3, 4, 5, 6], weight = 1, minsize = _MIN_WIN_HEIGHT/7)
+        self.rowconfigure([0, 1, 2, 3, 4, 5, 6, 7, 8], weight = 1, minsize = _MIN_WIN_HEIGHT/9)
 
         self.survivalFunctionLabel.grid(row = 0, column = 0, padx = 10, pady = 10)
-        self.survivalFunctionSelector.grid(row = 0, column = 1, padx = 10, pady = 10, columnspan = 3, sticky = "ew")
+        self.survivalFunctionSelector.grid(row = 0, column = 1, padx = 10, pady = 10, sticky = "ew", columnspan = 3)
+
+        self.genLengthLabel.grid(row = 5, column = 0, padx = 10, pady = 10, sticky = "s")
+        self.genLengthEntry.grid(row = 5, column = 1, padx = 10, pady = 10, sticky = "s")
+        self.genLengthSlider.grid(row = 6, column = 0, padx = 10, pady = 10, columnspan = 2, sticky = "new")
 
         self.widthLabel.grid(row = 1, column = 0, padx = 10, pady = 10, sticky = "s")
         self.widthEntry.grid(row = 1, column = 1, padx = 10, pady = 10, sticky = "s")
@@ -279,18 +320,39 @@ class newSimFrame(ttk.Frame):
         self.numOrganismsEntry.grid(row = 3, column = 3, padx = 10, pady = 10, sticky = "s")
         self.numOrganismsSlider.grid(row = 4, column = 2, padx = 10, pady = 10, columnspan = 2, sticky = "new")
 
-        self.btn_return.grid(row = 6, column = 0, padx = 10, pady = 10, columnspan = 4, sticky = "nsew")
-        self.btn_begin.grid(row = 5, column = 0, padx = 10, pady = 10, columnspan = 4, sticky = "nsew")
+        self.btn_return.grid(row = 8, column = 0, padx = 10, pady = 10, columnspan = 4, sticky = "nsew")
+        self.btn_begin.grid(row = 7, column = 0, padx = 10, pady = 10, columnspan = 4, sticky = "nsew")
+
+    def validateGenerationLength(self, P):
+        """Validates that the value of the generation length widget is an integer and inside the bounds set by the constants.
+        Called by the widget's internal validation functionality."""
+        if str.isdigit(P) and int(P) >= _MIN_GEN_LENGTH and int(P) <= _MAX_GEN_LENGTH:
+            self.generationLength.set(int(P))
+            return True
+        if str.isdigit(P) and int(P) < _MIN_GEN_LENGTH:
+            self.generationLength.set(_MIN_GEN_LENGTH)
+            return False
+        if str.isdigit(P) and int(P) > _MAX_GEN_LENGTH:
+            self.generationLength.set(_MAX_GEN_LENGTH)
+            return False
+        else:
+            self.generationLength.set(_DEF_GEN_LENGTH)
+            return False
 
     def validateWidth(self, P):
         """Validates that the value of the width widget is an integer and inside the bounds set by the constants.
         Called by the widget's internal validation functionality."""
         if str.isdigit(P) and int(P) >= _MIN_ENV_WIDTH and int(P) <= _MAX_ENV_WIDTH:
             self.envWidth.set(int(P))
-            return True 
-        if P == "":
             return True
+        if str.isdigit(P) and int(P) < _MIN_ENV_WIDTH:
+            self.envWidth.set(_MIN_ENV_WIDTH)
+            return False
+        if str.isdigit(P) and int(P) > _MAX_ENV_WIDTH:
+            self.envWidth.set(_MAX_ENV_WIDTH)
+            return False
         else:
+            self.envWidth.set(_DEF_ENV_WIDTH)
             return False
 
     def validateHeight(self, P):
@@ -298,10 +360,15 @@ class newSimFrame(ttk.Frame):
         Called by the widget's internal validation functionality."""
         if str.isdigit(P) and int(P) >= _MIN_ENV_HEIGHT and int(P) <= _MAX_ENV_HEIGHT:
             self.envHeight.set(int(P))
-            return True 
-        if P == "":
             return True
+        if str.isdigit(P) and int(P) < _MIN_ENV_HEIGHT:
+            self.envHeight.set(_MIN_ENV_HEIGHT)
+            return False
+        if str.isdigit(P) and int(P) > _MAX_ENV_HEIGHT:
+            self.envHeight.set(_MAX_ENV_HEIGHT)
+            return False
         else:
+            self.envHeight.set(_DEF_ENV_HEIGHT)
             return False
 
     def validateFoodDensity(self, P):
@@ -309,10 +376,15 @@ class newSimFrame(ttk.Frame):
         Called by the widget's internal validation functionality."""
         if str.isdigit(P) and int(P) >= _MIN_FOOD_DENSITY and int(P) <= _MAX_FOOD_DENSITY:
             self.foodDensity.set(int(P))
-            return True 
-        if P == "":
             return True
+        if str.isdigit(P) and int(P) < _MIN_FOOD_DENSITY:
+            self.foodDensity.set(_MIN_FOOD_DENSITY)
+            return False
+        if str.isdigit(P) and int(P) > _MAX_FOOD_DENSITY:
+            self.foodDensity.set(_MAX_FOOD_DENSITY)
+            return False
         else:
+            self.foodDensity.set(_DEF_FOOD_DENSITY)
             return False
 
     def validateNumOrganisms(self, P):
@@ -320,10 +392,15 @@ class newSimFrame(ttk.Frame):
         Called by the widget's internal validation functionality."""
         if str.isdigit(P) and int(P) >= _MIN_NUM_ORGANISMS and int(P) <= _MAX_NUM_ORGANISMS:
             self.numOrganisms.set(int(P))
-            return True 
-        if P == "":
             return True
+        if str.isdigit(P) and int(P) < _MIN_NUM_ORGANISMS:
+            self.numOrganisms.set(_MIN_NUM_ORGANISMS)
+            return False
+        if str.isdigit(P) and int(P) > _MAX_NUM_ORGANISMS:
+            self.numOrganisms.set(_MAX_NUM_ORGANISMS)
+            return False
         else:
+            self.numOrganisms.set(_DEF_NUM_ORGANISMS)
             return False
 
     def beginSimulation(self):
@@ -373,6 +450,7 @@ class simulationFrame(ttk.Frame):
             self.btn_advance_one.config(text = "Advance One Step")
             
         self.btn_save = ttk.Button(master = self)
+        self.btn_save.bind("<Button-1>", master.fileSave)
         try:
             saveIconFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "save.png"))
             self.saveIcon = ImageTk.PhotoImage(Image.open(saveIconFilePath))
@@ -380,7 +458,7 @@ class simulationFrame(ttk.Frame):
         except:
             self.btn_save.config(text = "Save")
 
-        self.btn_modify = ttk.Button(master = self)
+        self.btn_modify = ttk.Button(master = self, command = partial(self.master.changeToModificationMenu))
         try:
             modifyIconFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "modify.png"))
             self.modifyIcon = ImageTk.PhotoImage(Image.open(modifyIconFilePath))
@@ -413,3 +491,17 @@ class simulationFrame(ttk.Frame):
         self.btn_save.grid(row = 1, column = 3, sticky = "nsew")
         self.btn_modify.grid(row = 1, column = 4, sticky = "nsew")
         self.btn_exit.grid(row = 1, column = 5, sticky = "nsew")
+
+class modificationFrame(ttk.Frame):
+    def __init__(self,master):
+        ttk.Frame.__init__(self, master)
+
+        self.btn_exit = ttk.Button(master = self, command = partial(self.master.changeToSimulationMenu))
+        try:
+            exitIconFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "exit.png"))
+            self.exitIcon = ImageTk.PhotoImage(Image.open(exitIconFilePath))
+            self.btn_exit.config(image = self.exitIcon)
+        except:
+            self.btn_exit.config(text = "Exit Modification")
+
+        self.btn_exit.pack()

@@ -48,7 +48,7 @@ class gameWindow(tk.Tk):
         tk.Tk.__init__(self)
         self.title(_WINDOW_TITLE)
         self.minsize(_MIN_WIN_WIDTH,_MIN_WIN_HEIGHT)
-        self.attachedSimulation = Simulation.Simulation(0,0)
+        self.attachedSimulation = Simulation.Simulation(0,0,0,0,0,0)
         self.simFilePathLoad = None
         self.simFilePathSave = None
         self.mainMenu = mainFrame(self)
@@ -110,16 +110,17 @@ class gameWindow(tk.Tk):
     def simCanvasUpdate(self):
         self.simulationMenu.simDisplayCanvas.config(scrollregion = (0, 0, self.attachedSimulation.env.width,self.attachedSimulation.env.height))
         for obj in self.attachedSimulation.env.get_state()["objects"]:
-            objState = obj.get_state()
             if objState["object_type"] == 'food':
-                self.simulationMenu.simDisplayCanvas.create_rectangle((objState["x"], objState["y"])*2, outline = "", fill = _FOOD_COLOR)
+                self.simulationMenu.simDisplayCanvas.create_rectangle((obj["x"], obj["y"])*2, outline = "", fill = _FOOD_COLOR)
             if objState["object_type"] == 'obstacle':
-                self.simulationMenu.simDisplayCanvas.create_rectangle((objState["x"], objState["y"])*2, outline = "", fill = _OBSTACLE_COLOR)
+                self.simulationMenu.simDisplayCanvas.create_rectangle((obj["x"], obj["y"])*2, outline = "", fill = _OBSTACLE_COLOR)
 
         for org in self.attachedSimulation.env.get_state()["organisms"]:
-            orgState = org.get_state()
-            self.simulationMenu.simDisplayCanvas.create_rectangle((orgState["x"], orgState["y"])*2, outline = "", fill = _ORGANISM_COLOR)
+            self.simulationMenu.simDisplayCanvas.create_rectangle((org["x"], org["y"])*2, outline = "", fill = _ORGANISM_COLOR)
 
+    def simDataUpdate(self):
+        None
+    
     def pause(self):
         self.paused = True
 
@@ -425,6 +426,14 @@ class simulationFrame(ttk.Frame):
         self.canvasHorizScrollBar.config(command = self.simDisplayCanvas.xview)
         self.canvasVertiScrollBar.config(command = self.simDisplayCanvas.yview)
 
+        self.dataFrame = ttk.Frame(master = self)
+        #Data frame will have displays for:
+        # Current population
+        # Current step
+        # Current generation
+        # Generation length in steps
+        # 
+
         self.btn_play = ttk.Button(master = self, command = partial(self.master.unpause))
         try:
             playIconFilePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", "play.png"))
@@ -484,6 +493,8 @@ class simulationFrame(ttk.Frame):
         self.canvasVertiScrollBar.pack(side = 'left', fill = 'y')
         self.simDisplayCanvas.pack(fill='both', expand = 1)
         self.canvasFrame.grid(row = 0, column = 0, columnspan = 6, sticky = "nsew")
+
+        self.dataFrame.grid(row = 0, column = 6, rowspan = 2, sticky = "nsew")
         
         self.btn_play.grid(row = 1, column = 0, sticky = "nsew")
         self.btn_pause.grid(row = 1, column = 1, sticky = "nsew")

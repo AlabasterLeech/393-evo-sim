@@ -29,6 +29,7 @@ def main():
         if(curTime - cellvolutionWindow.lastStepTime > _SIM_STEP_TIME and cellvolutionWindow.paused == False):
             cellvolutionWindow.attachedSimulation.step()
             cellvolutionWindow.simCanvasUpdate()
+            cellvolutionWindow.simDataUpdate()
         cellvolutionWindow.update()
 
         #This try/except block checks if the window still exists, if it doesn't it breaks the loop

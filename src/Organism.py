@@ -9,7 +9,7 @@ class Organism:
     _WEST = 3
 
     STIMULI = [
-        lambda organism, env: random.randrange(-2, 2)
+        lambda organism: random.randrange(-2, 2)
     ] * 64
     ACTIONS = [
         lambda organism: {
@@ -51,6 +51,7 @@ class Organism:
 
     def think(self, env):
         # Calculate neuron states
+        self.env = env
         for i in range(256):
             if i in self.network:
                 self.network[i].calc_output()

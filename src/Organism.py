@@ -60,7 +60,6 @@ class Organism:
         # Generate list of desired actions
         actions = []
         for i in range(len(Organism.ACTIONS)):
-            if self.network[-i - 1].get_output_thresh():
             if (-i - 1) in self.network and self.network[-i - 1].get_output_thresh():
                 actions.append(i)
         actions = env.check(actions, self)

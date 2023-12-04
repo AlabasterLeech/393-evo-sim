@@ -9,8 +9,12 @@ class Organism:
     _WEST = 3
 
     STIMULI = [
-        lambda organism: random.randrange(-2, 2)
-    ] * 64
+        lambda organism: [-2, 0, 2, 0][organism.dir],
+        lambda organism: [0, 2, 0, -2][organism.dir],
+        lambda organism: (organism.x / organism.env.width - 0.5) * 4,
+        lambda organism: (organism.y / organism.env.height - 0.5) * 4,
+        lambda organism: (random.random() - 0.5) * 4
+    ]
     ACTIONS = [
         lambda organism: {
             setattr(organism, 'x', [organism.x, organism.x + 1, organism.x, organism.x - 1][organism.dir]),

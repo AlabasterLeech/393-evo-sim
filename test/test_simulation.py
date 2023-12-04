@@ -37,8 +37,11 @@ class SimulationTest(unittest.TestCase):
             os.path.join(os.path.abspath(__file__), "..", "..", "assets", 'test_load_empty_orgs.json'))
         empty_objs = os.path.normpath(
             os.path.join(os.path.abspath(__file__), "..", "..", "assets", 'test_load_empty_objs.json'))
+        empty_args = os.path.normpath(
+            os.path.join(os.path.abspath(__file__), "..", "..", "assets", 'test_load_empty_args.json'))
         self.assertEqual(False, self.sim.load_json(empty_orgs))
         self.assertEqual(False, self.sim.load_json(empty_objs))
+        self.assertEqual(False, self.sim.load_json(empty_args))
 
     def test_save_json(self):
         filename = "test_save_json.json"

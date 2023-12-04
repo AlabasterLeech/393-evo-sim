@@ -20,6 +20,14 @@ class Environment:
             self.check_kill
         ]
 
+    def get_organisms(self):
+        # Returns the list of organisms
+        return self.organisms
+
+    def get_objects(self):
+        # Returns the list of objects
+        return self.objects
+
     def get_state(self):
         # Return the current state of the environment
         state = {}

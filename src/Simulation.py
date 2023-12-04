@@ -53,11 +53,12 @@ class Simulation:
             if arg not in state:
                 save_file.close()
                 return False
-        if "organisms" not in state or "objects" not in state:
+        if "organisms" not in state["env"] or "objects" not in state["env"]:
             save_file.close()
             return False
         # Recreate saved state
         self.env = Environment(state["width"], state["height"])
+        self.env.set_state(state["env"])
         self.age = state["age"]
         self.gen = state["gen"]
         self.population = state["population"]

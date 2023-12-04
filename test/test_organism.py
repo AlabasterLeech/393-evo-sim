@@ -22,20 +22,20 @@ class OrganismTest(unittest.TestCase):
         self.env.organisms = [self.org]
 
     def test_get_state(self):
-        org_state = {"x": 4,
+        self.org.set_genome([b'\x03\x02\x01'])
+        exp_state = {"x": 4,
                      "y": 4,
                      "dir": Organism._NORTH,
-                     "genome": [1, 2, 3]}
+                     "genome": [[3, 2, 1]]}
         msg = 'States are not equal!'
-        self.assertEqual(org_state, self.org.get_state(), msg)
+        self.assertEqual(exp_state, self.org.get_state(), msg)
 
     def test_set_state(self):
         new_org_state = {"x": 1,
                          "y": 1,
                          "dir": Organism._NORTH,
-                         "genome": [1, 1, 1]}
+                         "genome": [[1, 1, 1]]}
         self.org.set_state(new_org_state)
-        d = self.org.get_state()
         msg = 'States are not equal!'
         self.assertEqual(new_org_state, self.org.get_state(), msg)
 

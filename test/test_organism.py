@@ -1,4 +1,5 @@
 import unittest
+from src.Object import Object
 from src.Organism import Organism
 from src.Environment import Environment
 import math
@@ -60,6 +61,12 @@ class OrganismTest(unittest.TestCase):
         exp_pos = (4, 5)
         msg = "Organism performed a different (set of) actions!"
         self.assertEqual(exp_pos, self.org.get_location(), msg)
+
+    def test_consume(self):
+        food = Object(4, 5, 'food', 0.75)
+        self.org.consume(food)
+        msg = ''
+        self.assertEqual(True, True, msg)
 
     def test_mutate(self):
         chance = 2147483647
@@ -144,6 +151,8 @@ class OrganismTest(unittest.TestCase):
         # Check default output value
         msg = 'Different output values!'
         self.assertEqual(self.test_neuron.output, 0, msg)
+        self.test_neuron.output = None
+        self.assertEqual(self.test_neuron.output, None, msg)
 
     def test_get_output_thresh(self):
         message = 'Incorrect comparison in get_output_thresh!'

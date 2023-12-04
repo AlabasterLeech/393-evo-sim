@@ -6,16 +6,25 @@ from src.Environment import Environment
 
 
 class Simulation:
+    # Survival functions
+    SURVIVAL = {
+        "None": lambda organism, env: True,
+        "North quarter": lambda organism, env: organism.y <= env.height // 4,
+        "South quarter": lambda organism, env: organism.y >= env.height * 3 // 4,
+        "East quarter": lambda organism, env: organism.x >= env.width * 3 // 4,
+        "West quarter": lambda organism, env: organism.x <= env.width // 4
+    }
+
     def __init__(self, width, height, population, survival_function, age_max):
         # Initialize new simulation
         self.env = Environment(width, height)
         self.age = 0
         self.gen = 0
         self.population = population
-        self.survival_function = survival_function
         self.age_max = age_max
         self.genome_length = 512
         self.mutation = 0.1
+        self.set_survival_function(survival_function)
         # Create first generation with random genomes
         for _ in range(self.population):
             patient = Organism({
@@ -45,6 +54,9 @@ class Simulation:
         saveName = "AUTO-SAVE-" + time.asctime().replace(':', '-').replace(' ', '-') + ".json"
         savePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", saveName))
         self.save_json(savePath)
+
+    def set_survival_function(self, survival_function):
+        self.survival_function = Simulation.SURVIVAL[survival_function if survival_function in Simulation.SURVIVAL else "None"]
 
     def step(self):
         # Calculate all organism behaviors and act on them

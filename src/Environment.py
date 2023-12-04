@@ -1,6 +1,6 @@
 import random
-from Organism import Organism
-from Object import Object
+from src.Organism import Organism
+from src.Object import Object
 
 
 class Environment:
@@ -11,6 +11,14 @@ class Environment:
         self.organisms = []  # A list to store all organisms in the environment
         self.objects = []  # A list to store non-living entities like food and obstacles
         self.survival_function = None  # The function to determine organism survival probability
+        self.check_function = [
+            self.check_move_forward,
+            self.check_move_backward,
+            self.check_turn_left,
+            self.check_turn_right,
+            self.check_consume,
+            self.check_kill
+        ]
 
     def get_state(self):
         # Return the current state of the environment
@@ -80,11 +88,11 @@ class Environment:
 
     def check_move_forward(self, organism):
         x, y = organism.get_location()
-        if organism.dir == Organism._NORTH and self.space_open(x, y + 1):
+        if organism.dir == Organism._NORTH and self.space_open(x, y - 1):
             return True
         elif organism.dir == Organism._EAST and self.space_open(x + 1, y):
             return True
-        elif organism.dir == Organism._SOUTH and self.space_open(x, y - 1):
+        elif organism.dir == Organism._SOUTH and self.space_open(x, y + 1):
             return True
         elif organism.dir == Organism._WEST and self.space_open(x - 1, y):
             return True
@@ -92,11 +100,11 @@ class Environment:
 
     def check_move_backward(self, organism):
         x, y = organism.get_location()
-        if organism.dir == Organism._NORTH and self.space_open(x, y - 1):
+        if organism.dir == Organism._NORTH and self.space_open(x, y + 1):
             return True
         elif organism.dir == Organism._EAST and self.space_open(x - 1, y):
             return True
-        elif organism.dir == Organism._SOUTH and self.space_open(x, y + 1):
+        elif organism.dir == Organism._SOUTH and self.space_open(x, y - 1):
             return True
         elif organism.dir == Organism._WEST and self.space_open(x + 1, y):
             return True
@@ -110,11 +118,11 @@ class Environment:
 
     def check_consume(self, organism):
         x, y = organism.get_location()
-        if organism.dir == Organism._NORTH and self.object_in_front(x, y + 1, 'food'):
+        if organism.dir == Organism._NORTH and self.object_in_front(x, y - 1, 'food'):
             return True
         elif organism.dir == Organism._EAST and self.object_in_front(x + 1, y, 'food'):
             return True
-        elif organism.dir == Organism._SOUTH and self.object_in_front(x, y - 1, 'food'):
+        elif organism.dir == Organism._SOUTH and self.object_in_front(x, y + 1, 'food'):
             return True
         elif organism.dir == Organism._WEST and self.object_in_front(x - 1, y, 'food'):
             return True
@@ -122,11 +130,11 @@ class Environment:
 
     def check_kill(self, organism):
         x, y = organism.get_location()
-        if organism.dir == Organism._NORTH and self.organism_in_front(x, y + 1):
+        if organism.dir == Organism._NORTH and self.organism_in_front(x, y - 1):
             return True
         elif organism.dir == Organism._EAST and self.organism_in_front(x + 1, y):
             return True
-        elif organism.dir == Organism._SOUTH and self.organism_in_front(x, y - 1):
+        elif organism.dir == Organism._SOUTH and self.organism_in_front(x, y + 1):
             return True
         elif organism.dir == Organism._WEST and self.organism_in_front(x - 1, y):
             return True
@@ -144,12 +152,3 @@ class Environment:
                 return True
         return False
 
-# Initializing the check function list
-check_function = [
-    Environment.check_move_forward,
-    Environment.check_move_backward,
-    Environment.check_turn_left,
-    Environment.check_turn_right,
-    Environment.check_consume,
-    Environment.check_kill
-]

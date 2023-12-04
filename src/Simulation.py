@@ -1,12 +1,12 @@
-
 import random
 import time
 from src.Organism import Organism
 from src.Environment import Environment
 
+
 class Simulation:
     def __init__(self, width, height, population, survival_function, age_max):
-        #Initialize new simulation
+        # Initialize new simulation
         self.env = Environment(width, height)
         self.age = 0
         self.gen = 0
@@ -15,7 +15,7 @@ class Simulation:
         self.age_max = age_max
         self.genome_length = 512
         self.mutation = 0.1
-        #Create first generation with random genomes
+        # Create first generation with random genomes
         for _ in range(self.population):
             patient = Organism({
                 "x": random.randint(0, self.env.width - 1),
@@ -30,47 +30,47 @@ class Simulation:
             while not self.env.space_open(patient.x, patient.y):
                 patient.x, patient.y = random.randint(0, self.env.width - 1), random.randint(0, self.env.height - 1)
             self.env.organisms.append(patient)
-    
+
     def load_json(self, filename):
-        #Load state from JSON
+        # Load state from JSON
         None
 
     def save_json(self, filename):
-        #Save state to JSON
+        # Save state to JSON
         None
-        
+
     def auto_save(self, filename):
-        #Save state to JSON with automatically generated file path
+        # Save state to JSON with automatically generated file path
         saveName = "AUTO-SAVE-" + time.asctime().replace(':', '-').replace(' ', '-') + ".json"
         savePath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", saveName))
         self.save_json(savePath)
-        
+
     def step(self):
-        #Calculate all organism behaviors and act on them
-        state = self.env.get_state()
-        for org in state["organisms"]:
+        # Calculate all organism behaviors and act on them
+        organisms = self.env.get_organisms()
+        for org in organisms:
             org.think(self.env)
-        for org in state["organisms"]:
+        for org in organisms:
             org.act(self.env)
         self.age += 1
         if self.age >= self.age_max:
             self.step_gen()
-    
+
     def step_gen(self):
-        #Create new generation of organisms
+        # Create new generation of organisms
         parents = []
         for organism in self.env.organisms:
             if self.survival_function(organism, self.env):
                 parents.append(organism)
         self.env.organisms = []
         for _ in range(self.population):
-            offspring = self.env.breed(random.choice(parents, random.choice(parents)))
+            offspring = self.env.breed(random.choice(parents), random.choice(parents))
             offspring.mutate(self.mutation)
             offspring.build_network()
             offspring.x, offspring.y = random.randint(0, self.env.width - 1), random.randint(0, self.env.height - 1)
             while not self.env.organisms.space_open(offspring.x, offspring.y):
                 offspring.x, offspring.y = random.randint(0, self.env.width - 1), random.randint(0, self.env.height - 1)
             self.env.organisms.append(offspring)
-        #Set counters
+        # Set counters
         self.age = 0
         self.gen += 1

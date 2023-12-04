@@ -88,11 +88,11 @@ class Environment:
 
     def check_move_forward(self, organism):
         x, y = organism.get_location()
-        if organism.dir == Organism._NORTH and self.space_open(x, y + 1):
+        if organism.dir == Organism._NORTH and self.space_open(x, y - 1):
             return True
         elif organism.dir == Organism._EAST and self.space_open(x + 1, y):
             return True
-        elif organism.dir == Organism._SOUTH and self.space_open(x, y - 1):
+        elif organism.dir == Organism._SOUTH and self.space_open(x, y + 1):
             return True
         elif organism.dir == Organism._WEST and self.space_open(x - 1, y):
             return True
@@ -100,11 +100,11 @@ class Environment:
 
     def check_move_backward(self, organism):
         x, y = organism.get_location()
-        if organism.dir == Organism._NORTH and self.space_open(x, y - 1):
+        if organism.dir == Organism._NORTH and self.space_open(x, y + 1):
             return True
         elif organism.dir == Organism._EAST and self.space_open(x - 1, y):
             return True
-        elif organism.dir == Organism._SOUTH and self.space_open(x, y + 1):
+        elif organism.dir == Organism._SOUTH and self.space_open(x, y - 1):
             return True
         elif organism.dir == Organism._WEST and self.space_open(x + 1, y):
             return True
@@ -118,11 +118,11 @@ class Environment:
 
     def check_consume(self, organism):
         x, y = organism.get_location()
-        if organism.dir == Organism._NORTH and self.object_in_front(x, y + 1, 'food'):
+        if organism.dir == Organism._NORTH and self.object_in_front(x, y - 1, 'food'):
             return True
         elif organism.dir == Organism._EAST and self.object_in_front(x + 1, y, 'food'):
             return True
-        elif organism.dir == Organism._SOUTH and self.object_in_front(x, y - 1, 'food'):
+        elif organism.dir == Organism._SOUTH and self.object_in_front(x, y + 1, 'food'):
             return True
         elif organism.dir == Organism._WEST and self.object_in_front(x - 1, y, 'food'):
             return True
@@ -130,11 +130,11 @@ class Environment:
 
     def check_kill(self, organism):
         x, y = organism.get_location()
-        if organism.dir == Organism._NORTH and self.organism_in_front(x, y + 1):
+        if organism.dir == Organism._NORTH and self.organism_in_front(x, y - 1):
             return True
         elif organism.dir == Organism._EAST and self.organism_in_front(x + 1, y):
             return True
-        elif organism.dir == Organism._SOUTH and self.organism_in_front(x, y - 1):
+        elif organism.dir == Organism._SOUTH and self.organism_in_front(x, y + 1):
             return True
         elif organism.dir == Organism._WEST and self.organism_in_front(x - 1, y):
             return True

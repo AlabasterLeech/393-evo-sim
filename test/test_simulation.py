@@ -1,4 +1,7 @@
 import unittest
+import os
+import time
+from unittest.mock import Mock, patch
 from src.Simulation import Simulation
 
 
@@ -13,12 +16,22 @@ class SimulationTest(unittest.TestCase):
 
     def test_init(self):
         self.assertEqual(self.pop, len(self.sim.env.organisms))
+        new_sim = Simulation(5, 5, 25, self.survival, self.age_max)
 
     def test_load_json(self):
         self.assertEqual(True, True)
 
     def test_save_json(self):
         self.assertEqual(True, True)
+
+    def test_auto_save(self):
+        # DOES NOT WORK - PROBABLY BECAUSE NOT SAVING ANY DATA TO THE JSON FILE!!
+        self.sim.auto_save('filename')
+        current_time = time.strftime('%a-%b-%d-%H-%M-%S-%Y', time.localtime())
+        exp_file_name = f"AUTO-SAVE-{current_time}.json"
+        exp_file_path = os.path.join(os.path.abspath(__file__), "..", "..", "assets", exp_file_name)
+        file_created = os.path.isfile(exp_file_path)
+        self.assertTrue(file_created, "JSON file was not created!")
 
     def test_step(self):
         self.sim.step()

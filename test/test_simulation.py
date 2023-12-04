@@ -2,7 +2,7 @@ import unittest
 from src.Simulation import Simulation
 
 
-class MyTestCase(unittest.TestCase):
+class SimulationTest(unittest.TestCase):
     def setUp(self):
         self.width = 10
         self.height = 10

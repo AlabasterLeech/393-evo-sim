@@ -9,19 +9,19 @@ class Organism:
     _WEST = 3
 
     STIMULI = [
-                  lambda organism, env: random.randrange(-2, 2)
-              ] * 64
+        lambda organism, env: random.randrange(-2, 2)
+    ] * 64
     ACTIONS = [
-    lambda organism: {
-        setattr(organism, 'x', [organism.x, organism.x + 1, organism.x, organism.x - 1][organism.dir]),
-        setattr(organism, 'y', [organism.y - 1, organism.y, organism.y + 1, organism.y][organism.dir])},
-    lambda organism: {
-        setattr(organism, 'x', [organism.x, organism.x - 1, organism.x, organism.x + 1][organism.dir]),
-        setattr(organism, 'y', [organism.y + 1, organism.y, organism.y - 1, organism.y][organism.dir])},
-    lambda organism: setattr(organism, 'dir', (organism.dir - 1) % 4),
-    lambda organism: setattr(organism, 'dir', (organism.dir + 1) % 4),
-    lambda organism: None,
-    lambda organism: None
+        lambda organism: {
+            setattr(organism, 'x', [organism.x, organism.x + 1, organism.x, organism.x - 1][organism.dir]),
+            setattr(organism, 'y', [organism.y - 1, organism.y, organism.y + 1, organism.y][organism.dir])},
+        lambda organism: {
+            setattr(organism, 'x', [organism.x, organism.x - 1, organism.x, organism.x + 1][organism.dir]),
+            setattr(organism, 'y', [organism.y + 1, organism.y, organism.y - 1, organism.y][organism.dir])},
+        lambda organism: setattr(organism, 'dir', (organism.dir - 1) % 4),
+        lambda organism: setattr(organism, 'dir', (organism.dir + 1) % 4),
+        lambda organism: None,
+        lambda organism: None
     ]
     STIMULUS_WEIGHT = 2.
 
@@ -75,9 +75,7 @@ class Organism:
             target_gene = random.randrange(0, len(self.genome))
             target_byte = random.randrange(0, 3)
             new_byte = self.genome[target_gene][target_byte] ^ (1 << random.randrange(0, 8))
-            self.genome[target_gene] = self.genome[target_gene][:target_byte] + bytes([new_byte]) + self.genome[
-                                                                                                        target_gene][
-                                                                                                    target_byte + 1:]
+            self.genome[target_gene] = self.genome[target_gene][:target_byte] + bytes([new_byte]) + self.genome[target_gene][target_byte + 1:]
 
     def build_network(self):
         # Generate fresh neural network from stored genome

@@ -2,8 +2,8 @@ import json
 import unittest
 import os
 import time
-from unittest.mock import Mock, patch
-from src.Simulation import Simulation
+from Simulation import Simulation
+from Organism import Organism
 
 
 class SimulationTest(unittest.TestCase):
@@ -26,6 +26,7 @@ class SimulationTest(unittest.TestCase):
     def test_load_json(self):
         filename = "test_load_json.json"
         filepath = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", "assets", filename))
+        print(filepath)
         flag = self.sim.load_json(filepath)
         self.assertEqual(True, flag, 'File was not loaded!')
         organisms = self.sim.env.get_organisms()
@@ -76,6 +77,13 @@ class SimulationTest(unittest.TestCase):
         sim_test = Simulation(self.width, self.height, self.food, self.pop, "North quarter", self.age_max)
         self.assertEqual(Simulation.SURVIVAL["North quarter"], sim_test.survival_function)
 
+    def test_fill_food(self):
+        self.sim.food_density = 100  # 100% chance for food
+        self.sim.env.organisms = []
+        self.sim.fill_food()
+        msg = 'Different number of food objects in Env!'
+        self.assertEqual(100, len(self.sim.env.get_objects()), msg)
+
     def test_step(self):
         self.sim.step()
         msg = 'Age is not the same as expected age!'
@@ -88,11 +96,22 @@ class SimulationTest(unittest.TestCase):
         self.assertEqual(1, self.sim.gen, msg)
 
     def test_step_gen(self):
+        self.sim.set_survival_function("North quarter")
+        org = Organism({"x": 0, "y": 0})
+        self.sim.env.organisms.append(org)
         self.sim.step_gen()
         age_msg = 'Age is not the same as expected age!'
         gen_msg = 'Gen is not the same as expected gen!'
+        org_msg = 'Org was not removed!'
         self.assertEqual(0, self.sim.age, age_msg)
         self.assertEqual(1, self.sim.gen, gen_msg)
+        self.assertEqual(True, self.sim.env.space_open(0, 0), org_msg)
+
+    def test_step_gen_no_survivors(self):
+        self.sim.env.organisms = []
+        self.sim.step_gen()
+        msg = 'Different numbers of organisms!'
+        self.assertEqual(self.pop, len(self.sim.env.get_organisms()), msg)
 
 
 if __name__ == '__main__':

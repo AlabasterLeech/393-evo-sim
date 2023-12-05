@@ -83,6 +83,7 @@ class Simulation:
             "env": self.env.get_state(),
             "age": self.age,
             "gen": self.gen,
+            "food_density": self.food_density,
             "population": self.population,
             "age_max": self.age_max,
             "genome_length": self.genome_length,

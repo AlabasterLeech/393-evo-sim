@@ -26,8 +26,16 @@ class Organism:
             setattr(organism, 'y', [organism.y + 1, organism.y, organism.y - 1, organism.y][organism.dir])},
         lambda organism: setattr(organism, 'dir', (organism.dir - 1) % 4),
         lambda organism: setattr(organism, 'dir', (organism.dir + 1) % 4),
-        lambda organism: None,
-        lambda organism: None
+        lambda organism: [
+            {organism.consume(victim), organism.env.objects.remove(victim)}
+            for victim in organism.env.objects
+            if (victim.x, victim.y) == ([organism.x, organism.x + 1, organism.x, organism.x - 1][organism.dir],
+                                        [organism.y - 1, organism.y, organism.y + 1, organism.y][organism.dir])],
+        lambda organism: [
+            organism.env.organisms.remove(victim)
+            for victim in organism.env.organisms
+            if (victim.x, victim.y) == ([organism.x, organism.x + 1, organism.x, organism.x - 1][organism.dir],
+                                        [organism.y - 1, organism.y, organism.y + 1, organism.y][organism.dir])],
     ]
     STIMULUS_WEIGHT = 2.
 
@@ -37,6 +45,7 @@ class Organism:
         self.dir = Organism._NORTH
         self.genome = []
         self.network = {}
+        self.stomach = 0
 
         # Copy initializer state into members
         self.set_state(state)
@@ -74,7 +83,7 @@ class Organism:
 
     def consume(self, object):
         # Modify values according to object composition
-        None
+        self.stomach += 1
 
     def mutate(self, chance):
         # Randomly alter singular gene in genome

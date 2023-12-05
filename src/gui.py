@@ -36,7 +36,7 @@ _SIM_BUTTON_DEFAULT_SIZE = 75
 _FOOD_COLOR = "#82d322"
 _ORGANISM_COLOR = "#7d7dff"
 _OBSTACLE_COLOR = "#595959"
-_SURV_FUNC_NAMES = ["None", "North quarter", "East quarter", "West quarter", "South quarter"]
+_SURV_FUNC_NAMES = ["None", "North quarter", "East quarter", "West quarter", "South quarter", "Has eaten"]
 _DRAW_SIZE = 3 #draw organisms and objects as NxN boxes where N = _DRAW_SIZE
 
 class gameWindow(tk.Tk):

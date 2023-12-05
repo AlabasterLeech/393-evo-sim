@@ -123,6 +123,7 @@ class Simulation:
             offspring.mutate(self.mutation)
             offspring.build_network()
             offspring.x, offspring.y = random.randint(0, self.env.width - 1), random.randint(0, self.env.height - 1)
+            offspring.dir = random.randint(0, 3)
             while not self.env.space_open(offspring.x, offspring.y):
                 offspring.x, offspring.y = random.randint(0, self.env.width - 1), random.randint(0, self.env.height - 1)
             self.env.organisms.append(offspring)

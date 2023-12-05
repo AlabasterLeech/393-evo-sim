@@ -43,6 +43,7 @@ class Simulation:
             while not self.env.space_open(patient.x, patient.y):
                 patient.x, patient.y = random.randint(0, self.env.width - 1), random.randint(0, self.env.height - 1)
             self.env.organisms.append(patient)
+        self.fill_food()
 
     def load_json(self, filename):
         # Load state from JSON
@@ -101,6 +102,14 @@ class Simulation:
         self.survival_function_name = survival_function
         self.survival_function = Simulation.SURVIVAL[survival_function if survival_function in Simulation.SURVIVAL else "None"]
 
+    def fill_food(self):
+        self.env.objects = []
+        chance = self.food_density / 100
+        for x in range(self.env.width):
+            for y in range(self.env.height):
+                if self.env.space_open(x, y) and random.random() < chance:
+                    self.env.objects.append(Object(x, y, "food", 1))
+
     def step(self):
         # Calculate all organism behaviors and act on them
         organisms = self.env.get_organisms()
@@ -128,6 +137,7 @@ class Simulation:
             while not self.env.space_open(offspring.x, offspring.y):
                 offspring.x, offspring.y = random.randint(0, self.env.width - 1), random.randint(0, self.env.height - 1)
             self.env.organisms.append(offspring)
+        self.fill_food()
         # Set counters
         self.age = 0
         self.gen += 1

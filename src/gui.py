@@ -125,16 +125,16 @@ class gameWindow(tk.Tk):
         self.simulationMenu.simDisplayCanvas.delete("all")
         self.simulationMenu.simDisplayCanvas.config(scrollregion = (0, 0, self.attachedSimulation.env.width * _DRAW_SIZE, self.attachedSimulation.env.height * _DRAW_SIZE))
         for obj in self.attachedSimulation.env.get_state()["objects"]:
-            if objState["object_type"] == 'food':
+            if obj["object_type"] == 'food':
                 self.simulationMenu.simDisplayCanvas.create_rectangle((obj["x"] * _DRAW_SIZE, obj["y"] * _DRAW_SIZE), (obj["x"] * _DRAW_SIZE + _DRAW_SIZE, obj["y"] * _DRAW_SIZE + _DRAW_SIZE), outline = "", fill = _FOOD_COLOR)
-            if objState["object_type"] == 'obstacle':
+            if obj["object_type"] == 'obstacle':
                 self.simulationMenu.simDisplayCanvas.create_rectangle((obj["x"] * _DRAW_SIZE, obj["y"] * _DRAW_SIZE), (obj["x"] * _DRAW_SIZE + _DRAW_SIZE, obj["y"] * _DRAW_SIZE + _DRAW_SIZE), outline = "", fill = _OBSTACLE_COLOR)
 
         for org in self.attachedSimulation.env.get_state()["organisms"]:
             self.simulationMenu.simDisplayCanvas.create_rectangle((org["x"] * _DRAW_SIZE, org["y"] * _DRAW_SIZE), (org["x"] * _DRAW_SIZE + _DRAW_SIZE, org["y"] * _DRAW_SIZE + _DRAW_SIZE), outline = "", fill = _ORGANISM_COLOR)
 
     def simDataUpdate(self):
-        self.simulationMenu.popCountVar.set(str(self.attachedSimulation.population))
+        self.simulationMenu.popCountVar.set(str(len(self.attachedSimulation.env.organisms)))
         self.simulationMenu.stepCountVar.set(str(self.attachedSimulation.age))
         self.simulationMenu.genCountVar.set(str(self.attachedSimulation.gen))
         self.simulationMenu.genlenVar.set(str(self.attachedSimulation.age_max))

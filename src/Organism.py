@@ -81,9 +81,9 @@ class Organism:
         for i in actions:
             Organism.ACTIONS[i](self)
 
-    def consume(self, object):
+    def consume(self, victim):
         # Modify values according to object composition
-        self.stomach += 1
+        self.stomach += victim.density
 
     def mutate(self, chance):
         # Randomly alter singular gene in genome

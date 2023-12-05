@@ -14,7 +14,8 @@ class Simulation:
         "North quarter": lambda organism, env: organism.y <= env.height // 4,
         "South quarter": lambda organism, env: organism.y >= env.height * 3 // 4,
         "East quarter": lambda organism, env: organism.x >= env.width * 3 // 4,
-        "West quarter": lambda organism, env: organism.x <= env.width // 4
+        "West quarter": lambda organism, env: organism.x <= env.width // 4,
+        "Has eaten": lambda organism, env: organism.stomach > 0
     }
 
     def __init__(self, width, height, food_density, population, survival_function, age_max):

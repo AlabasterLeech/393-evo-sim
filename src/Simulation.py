@@ -66,6 +66,8 @@ class Simulation:
         self.genome_length = state["genome_length"]
         self.mutation = state["mutation_rate"]
         self.set_survival_function(state["survival_function"])
+        for org in self.env.organisms:
+            org.build_network()
         save_file.close()
         return True
 

@@ -148,6 +148,7 @@ class gameWindow(tk.Tk):
     def advanceOneStep(self):
         self.paused = True
         self.attachedSimulation.step()
+        self.simCanvasUpdate()
         self.simDataUpdate()
 
     def sendModifications(self):

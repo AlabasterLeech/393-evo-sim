@@ -137,7 +137,7 @@ class gameWindow(tk.Tk):
         self.simulationMenu.popCountVar.set(str(self.attachedSimulation.population))
         self.simulationMenu.stepCountVar.set(str(self.attachedSimulation.age))
         self.simulationMenu.genCountVar.set(str(self.attachedSimulation.gen))
-        self.simulationMenu.genlenVar.set(str(self.newSimMenu.generationLength.get()))
+        self.simulationMenu.genlenVar.set(str(self.attachedSimulation.age_max))
     
     def pause(self):
         self.paused = True

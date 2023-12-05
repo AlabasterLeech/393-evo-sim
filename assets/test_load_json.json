@@ -1,1 +1,1 @@
-{"width": 10, "height": 10, "env": {"organisms": [{"x": 4, "y": 1, "dir": 1, "genome": [[101, 48, 120]]}], "objects": []}, "age": 0, "gen": 0, "population": 3, "age_max": 5, "genome_length": 512, "mutation_rate": 0.1, "survival_function": 10}
+{"width": 10, "height": 10, "env": {"organisms": [{"x": 4, "y": 1, "dir": 1, "genome": [[101, 48, 120]]}], "objects": []}, "age": 0, "gen": 0, "food_density": 75,"population": 3, "age_max": 5, "genome_length": 512, "mutation_rate": 0.1, "survival_function": 10}

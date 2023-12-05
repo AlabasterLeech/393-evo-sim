@@ -49,7 +49,7 @@ class Simulation:
         save_file = open(filename, "r")
         state = json.loads(save_file.read())
         # Validate loaded state
-        for arg in ["width", "height", "env", "age", "gen", "population", "age_max", "genome_length", "mutation_rate", "survival_function"]:
+        for arg in ["width", "height", "env", "age", "gen", "food_density", "population", "age_max", "genome_length", "mutation_rate", "survival_function"]:
             if arg not in state:
                 save_file.close()
                 return False
@@ -61,6 +61,7 @@ class Simulation:
         self.env.set_state(state["env"])
         self.age = state["age"]
         self.gen = state["gen"]
+        self.food_density = state["food_density"]
         self.population = state["population"]
         self.age_max = state["age_max"]
         self.genome_length = state["genome_length"]

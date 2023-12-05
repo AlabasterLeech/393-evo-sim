@@ -37,6 +37,7 @@ _FOOD_COLOR = "#82d322"
 _ORGANISM_COLOR = "#7d7dff"
 _OBSTACLE_COLOR = "#595959"
 _SURV_FUNC_NAMES = ["None", "North quarter", "East quarter", "West quarter", "South quarter"]
+_DRAW_SIZE = 3 #draw organisms and objects as NxN boxes where N = _DRAW_SIZE
 
 class gameWindow(tk.Tk):
     """A gameWindow is an extenstion of a tkinter root which initializes with the ttk frames needed
@@ -77,7 +78,7 @@ class gameWindow(tk.Tk):
     will actually parse from the JSON file and initialize the simulation state."""
     def fileLoad(self, *options):
         self.simFilePathLoad = filedialog.askopenfilename(parent = self, filetypes=[("JSON Files", "*.json")])
-        returnValue = self.attachedSimulation.save_json(self.simFilePathLoad)
+        returnValue = self.attachedSimulation.load_json(self.simFilePathLoad)
         if(returnValue):
             self.changeToSimulationMenu()
         else:
@@ -123,12 +124,12 @@ class gameWindow(tk.Tk):
         self.simulationMenu.simDisplayCanvas.config(scrollregion = (0, 0, self.attachedSimulation.env.width,self.attachedSimulation.env.height))
         for obj in self.attachedSimulation.env.get_state()["objects"]:
             if objState["object_type"] == 'food':
-                self.simulationMenu.simDisplayCanvas.create_rectangle((obj["x"], obj["y"])*2, outline = "", fill = _FOOD_COLOR)
+                self.simulationMenu.simDisplayCanvas.create_rectangle((obj["x"], obj["y"]), (obj["x"] + _DRAW_SIZE-1, obj["y"] + _DRAW_SIZE-1), outline = "", fill = _FOOD_COLOR)
             if objState["object_type"] == 'obstacle':
-                self.simulationMenu.simDisplayCanvas.create_rectangle((obj["x"], obj["y"])*2, outline = "", fill = _OBSTACLE_COLOR)
+                self.simulationMenu.simDisplayCanvas.create_rectangle((obj["x"], obj["y"]), (obj["x"] + _DRAW_SIZE-1, obj["y"] + _DRAW_SIZE-1), outline = "", fill = _OBSTACLE_COLOR)
 
         for org in self.attachedSimulation.env.get_state()["organisms"]:
-            self.simulationMenu.simDisplayCanvas.create_rectangle((org["x"], org["y"])*2, outline = "", fill = _ORGANISM_COLOR)
+            self.simulationMenu.simDisplayCanvas.create_rectangle((org["x"], org["y"]), (org["x"] + _DRAW_SIZE-1, org["y"] + _DRAW_SIZE-1), outline = "", fill = _ORGANISM_COLOR)
 
     def simDataUpdate(self):
         self.simulationMenu.popCountVar.set(str(self.attachedSimulation.population))

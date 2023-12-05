@@ -17,7 +17,7 @@ class Simulation:
         "West quarter": lambda organism, env: organism.x <= env.width // 4
     }
 
-    def __init__(self, width, height, population, food_density, survival_function, age_max):
+    def __init__(self, width, height, food_density, population, survival_function, age_max):
         # Initialize new simulation
         self.env = Environment(width, height)
         self.age = 0

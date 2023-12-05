@@ -1,7 +1,15 @@
+import os
+import sys
 import unittest
-from src.Environment import Environment
-from src.Organism import Organism
-from src.Object import Object
+
+assets = os.path.abspath('assets')
+src = os.path.abspath('src')
+sys.path.append(assets)
+sys.path.append(src)
+
+from Environment import Environment
+from Organism import Organism
+from Object import Object
 
 
 class EnvironmentTest(unittest.TestCase):

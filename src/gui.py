@@ -123,15 +123,15 @@ class gameWindow(tk.Tk):
 
     def simCanvasUpdate(self):
         self.simulationMenu.simDisplayCanvas.delete("all")
-        self.simulationMenu.simDisplayCanvas.config(scrollregion = (0, 0, self.attachedSimulation.env.width,self.attachedSimulation.env.height))
+        self.simulationMenu.simDisplayCanvas.config(scrollregion = (0, 0, self.attachedSimulation.env.width * _DRAW_SIZE, self.attachedSimulation.env.height * _DRAW_SIZE))
         for obj in self.attachedSimulation.env.get_state()["objects"]:
             if objState["object_type"] == 'food':
-                self.simulationMenu.simDisplayCanvas.create_rectangle((obj["x"], obj["y"]), (obj["x"] + _DRAW_SIZE-1, obj["y"] + _DRAW_SIZE-1), outline = "", fill = _FOOD_COLOR)
+                self.simulationMenu.simDisplayCanvas.create_rectangle((obj["x"] * _DRAW_SIZE, obj["y"] * _DRAW_SIZE), (obj["x"] * _DRAW_SIZE + _DRAW_SIZE, obj["y"] * _DRAW_SIZE + _DRAW_SIZE), outline = "", fill = _FOOD_COLOR)
             if objState["object_type"] == 'obstacle':
-                self.simulationMenu.simDisplayCanvas.create_rectangle((obj["x"], obj["y"]), (obj["x"] + _DRAW_SIZE-1, obj["y"] + _DRAW_SIZE-1), outline = "", fill = _OBSTACLE_COLOR)
+                self.simulationMenu.simDisplayCanvas.create_rectangle((obj["x"] * _DRAW_SIZE, obj["y"] * _DRAW_SIZE), (obj["x"] * _DRAW_SIZE + _DRAW_SIZE, obj["y"] * _DRAW_SIZE + _DRAW_SIZE), outline = "", fill = _OBSTACLE_COLOR)
 
         for org in self.attachedSimulation.env.get_state()["organisms"]:
-            self.simulationMenu.simDisplayCanvas.create_rectangle((org["x"], org["y"]), (org["x"] + _DRAW_SIZE-1, org["y"] + _DRAW_SIZE-1), outline = "", fill = _ORGANISM_COLOR)
+            self.simulationMenu.simDisplayCanvas.create_rectangle((org["x"] * _DRAW_SIZE, org["y"] * _DRAW_SIZE), (org["x"] * _DRAW_SIZE + _DRAW_SIZE, org["y"] * _DRAW_SIZE + _DRAW_SIZE), outline = "", fill = _ORGANISM_COLOR)
 
     def simDataUpdate(self):
         self.simulationMenu.popCountVar.set(str(self.attachedSimulation.population))
@@ -445,7 +445,7 @@ class simulationFrame(ttk.Frame):
         self.canvasHorizScrollBar = tk.Scrollbar(master = self.canvasFrame, orient = 'horizontal')
         self.canvasVertiScrollBar = tk.Scrollbar(master = self.canvasFrame, orient = 'vertical')
         self.simDisplayCanvas = tk.Canvas(master = self.canvasFrame,
-                                          scrollregion = (0, 0, self.master.attachedSimulation.env.width,self.master.attachedSimulation.env.height),
+                                          scrollregion = (0, 0, self.master.attachedSimulation.env.width * _DRAW_SIZE, self.master.attachedSimulation.env.height * _DRAW_SIZE),
                                           xscrollcommand = self.canvasHorizScrollBar.set, yscrollcommand = self.canvasVertiScrollBar.set)
         self.canvasHorizScrollBar.config(command = self.simDisplayCanvas.xview)
         self.canvasVertiScrollBar.config(command = self.simDisplayCanvas.yview)

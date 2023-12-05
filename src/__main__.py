@@ -31,7 +31,6 @@ def main():
             cellvolutionWindow.attachedSimulation.step()
             curTime = time.perf_counter_ns()
         if(cellvolutionWindow.attachedSimulation.age % _CANVAS_UPDATE_FREQ == 1 and cellvolutionWindow.paused == False):
-            print('Calling updates')
             cellvolutionWindow.simCanvasUpdate()
             cellvolutionWindow.simDataUpdate()
         cellvolutionWindow.update()

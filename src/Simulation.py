@@ -3,8 +3,9 @@ import random
 import time
 import os.path
 
-from src.Organism import Organism
-from src.Environment import Environment
+from Organism import Organism
+from Object import Object
+from Environment import Environment
 
 
 class Simulation:

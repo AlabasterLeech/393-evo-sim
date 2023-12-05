@@ -1,6 +1,6 @@
 import random
-from src.Organism import Organism
-from src.Object import Object
+from Organism import Organism
+from Object import Object
 
 
 class Environment:

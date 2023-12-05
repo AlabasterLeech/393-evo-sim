@@ -86,6 +86,7 @@ class Simulation:
         save_file = open(filename, "w")
         save_file.write(json.dumps(state))
         save_file.close()
+        return True
 
     def auto_save(self, filename):
         # Save state to JSON with automatically generated file path

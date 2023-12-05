@@ -81,6 +81,7 @@ class gameWindow(tk.Tk):
         returnValue = self.attachedSimulation.load_json(self.simFilePathLoad)
         if(returnValue):
             self.changeToSimulationMenu()
+            self.paused = True
         else:
             self.changeToMainMenu()
 
@@ -96,6 +97,7 @@ class gameWindow(tk.Tk):
     def changeToMainMenu(self):
         self.clearWindow()
         self.mainMenu.pack(fill = tk.BOTH, expand = True)
+        self.paused = True
 
     def changeToTutorialMenu(self):
         self.clearWindow()

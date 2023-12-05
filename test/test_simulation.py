@@ -14,13 +14,13 @@ class SimulationTest(unittest.TestCase):
         self.food = 0.75
         self.survival = 10
         self.age_max = 5
-        self.sim = Simulation(self.width, self.height, self.pop, self.food, self.survival, self.age_max)
+        self.sim = Simulation(self.width, self.height, self.food, self.pop, self.survival, self.age_max)
         self.survival_function = self.sim.survival_function
         self.survival_function_name = self.sim.survival_function_name
 
     def test_init(self):
         self.assertEqual(self.pop, len(self.sim.env.organisms))
-        new_sim = Simulation(5, 5, 25, self.food, self.survival, self.age_max)
+        new_sim = Simulation(5, 5, self.food, 25, self.survival, self.age_max)
         new_sim.step_gen()
 
     def test_load_json(self):
@@ -73,7 +73,7 @@ class SimulationTest(unittest.TestCase):
         self.assertEqual(Simulation.SURVIVAL["None"], self.survival_function)
 
         # Check setting actual survival function
-        sim_test = Simulation(self.width, self.height, self.pop, self.food, "North quarter", self.age_max)
+        sim_test = Simulation(self.width, self.height, self.food, self.pop, "North quarter", self.age_max)
         self.assertEqual(Simulation.SURVIVAL["North quarter"], sim_test.survival_function)
 
     def test_step(self):
